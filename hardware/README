@@ -1,0 +1,10 @@
+This is the hardware for the Bricktronics projects.
+
+bricktronics_shield - An Arduino add-on shield that allows you to interact with two motors and four sensors.
+
+bricktronics_megashield - An Arduino Mega add-on shield that allows you to interact with six motors and four sensors.
+
+
+
+
+Releases - When we decide to have some hardware fabricated, we give it a version number. This directory contains ZIP archives of the projects above, for each version of the hardware we released to the public. Mostly for historical interest.
