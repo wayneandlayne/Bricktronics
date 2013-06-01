@@ -1,0 +1,10 @@
+This is the software for the Bricktronics projects.
+
+Bricktronics - The Arduino library for the Bricktronics Shield.
+
+BricktronicsMegashield - The Arduino library for the Bricktronics Megashield.
+
+Releases - Contains ZIP archives of the two libraries above, released on specific dates. Mostly for historical interest.
+
+DrummerBot - An Arduino sketch for a cool project featured in a Make Magazine blog post.
+
