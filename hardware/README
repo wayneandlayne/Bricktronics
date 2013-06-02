@@ -4,7 +4,7 @@ bricktronics_shield - An Arduino add-on shield that allows you to interact with 
 
 bricktronics_megashield - An Arduino Mega add-on shield that allows you to interact with six motors and four sensors.
 
+breakout_board - A small circuit board to break-out the pins on the LEGO NXT-compatible sockets.
 
+mounting_plates - Design files for the laser-cut mounting plates.
 
-
-Releases - When we decide to have some hardware fabricated, we give it a version number. This directory contains ZIP archives of the projects above, for each version of the hardware we released to the public. Mostly for historical interest.
