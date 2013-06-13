@@ -12,7 +12,7 @@
 // Connect an Ultrasonic Sensor to Sensor Port 4. Make sure to adjust the jumpers on Sensor Port 4 so that pins 1 and 2 are connected, and pins 4 and 5 are connected.  There's an image of this on the Bricktronics website.
 
 BricktronicsMegashield brick = BricktronicsMegashield();
-Ultrasonic ultrasonic = Ultrasonic(&brick, 4); // Plug an Ultrasonic Sensor into Sensor Port 4, and use the jumpers to connect pins 1 and 2, and 3 and 4.
+Ultrasonic ultrasonic = Ultrasonic(&brick, 4); // Plug an Ultrasonic Sensor into Sensor Port 4, and use the jumpers to connect pins 1 and 2, and 4 and 5.
 
 void setup() 
 {
