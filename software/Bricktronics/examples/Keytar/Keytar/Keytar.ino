@@ -159,3 +159,4 @@ void handle_button_press(char slot) // handle_button_press handles fret button p
         watch_for_input(rest_duration, slot, true, false);
     }
 }
+
