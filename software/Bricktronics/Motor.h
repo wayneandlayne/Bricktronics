@@ -64,6 +64,8 @@ class Motor
         int32_t get_pos(void);
         void set_pos(int32_t);
 
+        int16_t get_angle(void);
+
     private:
 
 };
@@ -99,6 +101,7 @@ class PIDMotor: public Motor
         PIDMotor(Bricktronics* brick);
 
         void go_to_pos(int16_t);
+        void go_to_angle(int16_t);
         void update(void);
 
         int32_t last_error;

@@ -94,12 +94,37 @@ void Motor::set_pos(int32_t pos)
     encoder->write(pos);
 }
 
+int16_t Motor::get_angle(void)
+{
+    return (get_pos() % 720) / 2;
+}
+
 void PIDMotor::go_to_pos(int16_t pos)
 {
     // clear out errors
     last_error = 0;
     sum_error = 0;
     destination_pos = pos;
+}
+
+// angle ranges from 0 - 359
+void PIDMotor::go_to_angle(int16_t angle)
+{
+
+    long start_pos = get_pos(); // start pos could be a very large count
+    int start_angle = (start_pos % 720) / 2; // between 0 and 359
+    int delta_angle = angle - start_angle;
+
+    while (delta_angle > 180)
+        delta_angle -= 360;
+    while (delta_angle < -180)
+        delta_angle += 360;
+
+    // now, delta is between -180 and +180
+
+    long dest_pos = start_pos + (delta_angle * 2);
+
+    go_to_pos(dest_pos);
 }
 
 void PIDMotor::update(void)
