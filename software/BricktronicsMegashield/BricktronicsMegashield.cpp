@@ -23,5 +23,30 @@ void BricktronicsMegashield::delay_update(uint16_t delay_ms, PIDMotor* m1, PIDMo
     }
 }
 
+void BricktronicsMegashield::delay_update(uint16_t delay_ms, PIDMotor* m1, PIDMotor* m2, PIDMotor* m3, PIDMotor* m4, PIDMotor* m5)
+{
+    delay_update(delay_ms, m1, m2, m3, m4, m5, NULL);
+}
+
+void BricktronicsMegashield::delay_update(uint16_t delay_ms, PIDMotor* m1, PIDMotor* m2, PIDMotor* m3, PIDMotor* m4)
+{
+    delay_update(delay_ms, m1, m2, m3, m4, NULL, NULL);
+}
+
+void BricktronicsMegashield::delay_update(uint16_t delay_ms, PIDMotor* m1, PIDMotor* m2, PIDMotor* m3)
+{
+    delay_update(delay_ms, m1, m2, m3, NULL, NULL, NULL);
+}
+
+void BricktronicsMegashield::delay_update(uint16_t delay_ms, PIDMotor* m1, PIDMotor* m2)
+{
+    delay_update(delay_ms, m1, m2, NULL, NULL, NULL, NULL);
+}
+
+void BricktronicsMegashield::delay_update(uint16_t delay_ms, PIDMotor* m1)
+{
+    delay_update(delay_ms, m1, NULL, NULL, NULL, NULL, NULL);
+}
+
 void BricktronicsMegashield::begin() {}
 

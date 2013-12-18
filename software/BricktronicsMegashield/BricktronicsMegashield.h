@@ -101,6 +101,11 @@ class BricktronicsMegashield
         BricktronicsMegashield();
         void begin();
         static void delay_update(uint16_t delay_ms, PIDMotor* m1, PIDMotor* m2, PIDMotor* m3, PIDMotor* m4, PIDMotor* m5, PIDMotor* m6);
+        static void delay_update(uint16_t delay_ms, PIDMotor* m1, PIDMotor* m2, PIDMotor* m3, PIDMotor* m4, PIDMotor* m5);
+        static void delay_update(uint16_t delay_ms, PIDMotor* m1, PIDMotor* m2, PIDMotor* m3, PIDMotor* m4);
+        static void delay_update(uint16_t delay_ms, PIDMotor* m1, PIDMotor* m2, PIDMotor* m3);
+        static void delay_update(uint16_t delay_ms, PIDMotor* m1, PIDMotor* m2);
+        static void delay_update(uint16_t delay_ms, PIDMotor* m1);
     private:
 };
 
