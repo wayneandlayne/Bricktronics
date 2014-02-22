@@ -35,7 +35,7 @@ void loop()
     // If we have nothing else to do except wait for the motor to reach its destination, we 
     // can use this shortcut function below, which repeatedly calls the motor's update() function
     // while waiting for the specified period of time (here, 1000 milliseconds).
-    BricktronicsMegashield::delay_update(1000, &m, NULL, NULL, NULL, NULL, NULL);
+    Bricktronics::delay_update(1000, &m, NULL);
 
 
     // Now we want to move the motor to a different position
@@ -50,8 +50,8 @@ void loop()
         // loop to keep track of that
         long end_time_inner = millis() + 50; // this is the time when we next need to update() the motor
 
-        Serial.println("Doing long work while motors are moving");
-        // long_function();
+        Serial.println("Doing work (< 50ms each time) while motors are moving");
+        // do_something();
 
         while (millis() < end_time_inner); // just wait here until 50ms has elapsed
 
