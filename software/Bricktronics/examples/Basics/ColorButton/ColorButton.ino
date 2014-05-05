@@ -1,17 +1,20 @@
 #include <Wire.h>
 #include <Bricktronics.h>
+#include <ColorSensor.h>
 
-//Bricktronics Example: ColorButton
-//http://www.wayneandlayne.com/bricktronics
-//This example uses a button and a color sensor.
-//When the button is pressed, a single reading from the color sensor is taken and converted into a color name and printed over the Serial Console.
+// Bricktronics Example: ColorButton
+// http://www.wayneandlayne.com/bricktronics
+// This example uses a button and a color sensor.
+// When the button is pressed, a single reading from the color sensor
+// is taken and converted into a color name and printed over the Serial console.
 
-//Connect a button to Sensor Port 1, and a Color Sensor into Sensor Port 3.  Make sure to adjust the jumpers on Sensor Port 3 so that only pins 3 and 4 are connected.  There's an image of this on the Bricktronics website.
+// Connect a button to Sensor Port 1, and a Color Sensor into Sensor Port 3.
+// Make sure to adjust the jumpers on Sensor Port 3 so that only pins 3 and 4
+// are connected.  There's an image of this on the Bricktronics website.
 
-
-Bricktronics brick = Bricktronics();
-ColorSensor color = ColorSensor(&brick, 3); //Plug a Color Sensor into Sensor Port 3, and adjust the jumpers so that only pins 3 and 4 are connected.
-Button button = Button(&brick, 1);
+Bricktronics    brick   = Bricktronics();
+Button          button  = Button(brick, 1);
+ColorSensor     color   = ColorSensor(brick, 3);
 
 void setup() 
 {
@@ -23,16 +26,17 @@ void setup()
 
 void loop()
 {
-    while (button.is_released())
+    while (button.isReleased())
     {
-        //do nothing
+        // do nothing
     }
-    color.print_color(color.get_color());
+    color.printColor(color.getColor());
     Serial.println();
-    delay(100); //simple debounce
-    while (button.is_pressed())
+    delay(100); // simple debounce
+    while (button.isPressed())
     {
-        //do nothing
+        // do nothing
     }
-    delay(100); //simple debounce
+    delay(100); // simple debounce
 }
+

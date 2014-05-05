@@ -1,10 +1,8 @@
 This is the software for the Bricktronics projects.
 
-Bricktronics - The Arduino library for the Bricktronics Shield.
+Bricktronics - The Arduino library for the Bricktronics Shield, Bricktronics Megashield, and Bricktronics Motor Driver. This is now a combined library, instead of having separate libraries for each board.
 
-BricktronicsMegashield - The Arduino library for the Bricktronics Megashield.
-
-Releases - Contains ZIP archives of the two libraries above, released on specific dates. Mostly for historical interest.
+Releases - Contains ZIP archives of the Bricktronics library above, released on specific dates. Mostly for historical interest. Includes the original split-library designs.
 
 DrummerBot - An Arduino sketch for a cool project featured in a Make Magazine blog post.
 

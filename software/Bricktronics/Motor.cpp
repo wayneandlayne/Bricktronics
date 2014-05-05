@@ -1,64 +1,158 @@
+/*
+   Combined Bricktronics Library
+   For Bricktronics Shield, Bricktronics Megashield, and Bricktronics Motor Driver
+   Copyright (C) 2014 Adam Wolf, Matthew Beckler, John Baichtal
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License
+   as published by the Free Software Foundation; either version 2
+   of the License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+
 #include "Motor.h"
 
-Motor::Motor(Bricktronics* b,
-             uint8_t dir_p,
-             uint8_t pwm_p,
-             uint8_t en_p,
-             uint8_t tach_a_p,
-             uint8_t tach_b_p)
+Motor::Motor(Bricktronics &brick, uint8_t port)
 {
-    brick = b;
-    dir_pin = dir_p;
-    pwm_pin = pwm_p;
-    en_pin = en_p;
-    encoder = new Encoder(tach_a_p, tach_b_p);
+    // Keep a pointer to the Bricktronics object so we can use its functions
+    b = &brick;
+    switch (port)
+    {
+        case 1:
+            enPin  = BS_MOTOR_1_EN;
+            dirPin = BS_MOTOR_1_DIR;
+            pwmPin = BS_MOTOR_1_PWM;
+            encoder = new Encoder(BS_MOTOR_1_TACH_0, BS_MOTOR_1_TACH_1);
+            break;
+        case 2:
+            enPin  = BS_MOTOR_2_EN;
+            dirPin = BS_MOTOR_2_DIR;
+            pwmPin = BS_MOTOR_2_PWM;
+            encoder = new Encoder(BS_MOTOR_2_TACH_0, BS_MOTOR_2_TACH_1);
+            break;
+    }
 }
 
-Motor::Motor(Bricktronics* b, uint8_t port)
+Motor::Motor(BricktronicsMegashield &brick, uint8_t port)
 {
-    brick = b;
-    set_port(port);
+    // This indicates that we are not using the Bricktronics object
+    b = NULL;
+    switch (port)
+    {
+        case 1:
+            enPin  = BMS_MOTOR_1_EN;
+            dirPin = BMS_MOTOR_1_DIR;
+            pwmPin = BMS_MOTOR_1_PWM;
+            encoder = new Encoder(BMS_MOTOR_1_TACH_0, BMS_MOTOR_1_TACH_1);
+            break;
+        case 2:
+            enPin  = BMS_MOTOR_2_EN;
+            dirPin = BMS_MOTOR_2_DIR;
+            pwmPin = BMS_MOTOR_2_PWM;
+            encoder = new Encoder(BMS_MOTOR_2_TACH_0, BMS_MOTOR_2_TACH_1);
+            break;
+        case 3:
+            enPin  = BMS_MOTOR_3_EN;
+            dirPin = BMS_MOTOR_3_DIR;
+            pwmPin = BMS_MOTOR_3_PWM;
+            encoder = new Encoder(BMS_MOTOR_3_TACH_0, BMS_MOTOR_3_TACH_1);
+            break;
+        case 4:
+            enPin  = BMS_MOTOR_4_EN;
+            dirPin = BMS_MOTOR_4_DIR;
+            pwmPin = BMS_MOTOR_4_PWM;
+            encoder = new Encoder(BMS_MOTOR_4_TACH_0, BMS_MOTOR_4_TACH_1);
+            break;
+        case 5:
+            enPin  = BMS_MOTOR_5_EN;
+            dirPin = BMS_MOTOR_5_DIR;
+            pwmPin = BMS_MOTOR_5_PWM;
+            encoder = new Encoder(BMS_MOTOR_5_TACH_0, BMS_MOTOR_5_TACH_1);
+            break;
+        case 6:
+            enPin  = BMS_MOTOR_6_EN;
+            dirPin = BMS_MOTOR_6_DIR;
+            pwmPin = BMS_MOTOR_6_PWM;
+            encoder = new Encoder(BMS_MOTOR_6_TACH_0, BMS_MOTOR_6_TACH_1);
+            break;
+    }
+}
+
+Motor::Motor(uint8_t enPin, uint8_t dirPin, uint8_t pwmPin, uint8_t tachPinA, uint8_t tachPinB)
+{
+    // This indicates that we are not using the Bricktronics object
+    b = NULL;
+    this->enPin = enPin;
+    this->dirPin = dirPin;
+    this->pwmPin = pwmPin;
+    encoder = new Encoder(tachPinA, tachPinB);
+}
+
+// TODO We are using new to create the Encoder object
+// Should we free this in the deconstructor? Or does that never really get called in Arduino?
+
+void Motor::myPinMode(uint8_t pin, uint8_t mode)
+{
+    if (b)
+    {
+        b->pinMode(pin, mode);
+    }
+    else
+    {
+        pinMode(pin, mode);
+    }
+}
+
+void Motor::myDigitalWrite(uint8_t pin, uint8_t value)
+{
+    if (b)
+    {
+        b->digitalWrite(pin, value);
+    }
+    else
+    {
+        digitalWrite(pin, value);
+    }
 }
 
 void Motor::begin(void)
 {
-    brick->pinMode(dir_pin, OUTPUT);
-    brick->pinMode(pwm_pin, OUTPUT);
-    brick->pinMode(en_pin, OUTPUT);
+    enabled = true;
+    stop();
+    myPinMode(dirPin, OUTPUT);
+    myPinMode(pwmPin, OUTPUT);
+    myPinMode(enPin, OUTPUT);
+}
+
+void Motor::enable(void)
+{
+    begin();
+}
+
+void Motor::disable(void)
+{
+    enabled = false;
+    myPinMode(dirPin, INPUT);
+    myPinMode(pwmPin, INPUT);
+    myPinMode(enPin, INPUT);
 }
 
 void Motor::stop(void)
 {
-    enabled = false;
-    brick->digitalWrite(en_pin, LOW);
-    brick->digitalWrite(dir_pin, LOW);
-    brick->digitalWrite(pwm_pin, LOW);
+    myDigitalWrite(enPin, LOW);
+    myDigitalWrite(dirPin, LOW);
+    myDigitalWrite(pwmPin, LOW);
 }
 
-void Motor::set_port(uint8_t port)
-{
-    //do this better.
-    // TODO We are using new here on the Encoder object - Should we free this next time we call set_port?
-    // if (encoder)
-    //     free(encoder);
-    // or something like that?
-    if (port == 1)
-    {
-        dir_pin = MOTOR_1_DIR;
-        pwm_pin = MOTOR_1_PWM;
-        en_pin = MOTOR_1_EN;
-        encoder = new Encoder(MOTOR_1_TACH_0, MOTOR_1_TACH_1);
-    }
-    else if (port == 2)
-    {
-        dir_pin = MOTOR_2_DIR;
-        pwm_pin = MOTOR_2_PWM;
-        en_pin = MOTOR_2_EN;
-        encoder = new Encoder(MOTOR_2_TACH_0, MOTOR_2_TACH_1);
-    }
-}
-
-void Motor::set_speed(int16_t s)
+void Motor::setSpeed(int16_t s)
 {
     speed = s;
     if (s == 0)
@@ -67,52 +161,30 @@ void Motor::set_speed(int16_t s)
     }
     else if (s < 0)
     {
-        brick->digitalWrite(dir_pin, HIGH);
-        analogWrite(pwm_pin, 255+s);
-        brick->digitalWrite(en_pin, HIGH);
+        myDigitalWrite(dirPin, HIGH);
+        analogWrite(pwmPin, 255 + s);
+        myDigitalWrite(enPin, HIGH);
     }
     else
     {
-        brick->digitalWrite(dir_pin, LOW);
-        analogWrite(pwm_pin, s);
-        brick->digitalWrite(en_pin, HIGH);
+        myDigitalWrite(dirPin, LOW);
+        analogWrite(pwmPin, s);
+        myDigitalWrite(enPin, HIGH);
     }
 }
 
-int16_t Motor::get_speed(void)
+int16_t Motor::getSpeed(void)
 {
     return speed;
 }
 
-int32_t Motor::get_pos(void)
+int32_t Motor::getPos(void)
 {
     return encoder->read();
 }
 
-void Motor::set_pos(int32_t pos)
+void Motor::setPos(int32_t pos)
 {
     encoder->write(pos);
-}
-
-void PIDMotor::go_to_pos(int16_t pos)
-{
-    // clear out errors
-    last_error = 0;
-    sum_error = 0;
-    destination_pos = pos;
-}
-
-void PIDMotor::update(void)
-{
-    int16_t curr_position = encoder->read();
-    int32_t error = curr_position - destination_pos;
-    int32_t speed = mKP * error;
-    speed += mKD * (error - last_error);
-    speed += mKI * sum_error;
-    last_error = error;
-    sum_error += error;
-    sum_error = constrain(sum_error, -255, 255);
-    speed = constrain(speed, -255, 255);
-    set_speed(speed);
 }
 

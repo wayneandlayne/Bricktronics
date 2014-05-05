@@ -1,5 +1,7 @@
-/* Bricktronics Library -- Ultrasonic.h
-   Copyright (C) 2013 Adam Wolf, Matthew Beckler, John Baichtal
+/*
+   Combined Bricktronics Library
+   For Bricktronics Shield, Bricktronics Megashield, and Bricktronics Motor Driver
+   Copyright (C) 2014 Adam Wolf, Matthew Beckler, John Baichtal
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -16,56 +18,66 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+
 #ifndef ULTRASONIC_H
 #define ULTRASONIC_H
 
-#define READ_COMMAND 0x41
-#define READ_MEASUREMENT_BYTE_ZERO 0x42
+#define READ_COMMAND                    0x41
+#define READ_MEASUREMENT_BYTE_ZERO      0x42
 
-#define GET_VERSION 0x00
-#define GET_PRODUCT_ID 0x08
-#define GET_SENSOR_TYPE 0x10
-#define FACTORY_ZERO 0x11
-#define FACTORY_SCALE_FACTOR 0x12
-#define FACTORY_SCALE_DEVICOR 0x13
-#define UNITS 0x14
+#define GET_VERSION                     0x00
+#define GET_PRODUCT_ID                  0x08
+#define GET_SENSOR_TYPE                 0x10
+#define FACTORY_ZERO                    0x11
+#define FACTORY_SCALE_FACTOR            0x12
+#define FACTORY_SCALE_DEVICOR           0x13
+#define UNITS                           0x14
 
-#define ULTRASONIC_ADDRESS 0x02
-#define BUFF_LEN 9
+#define ULTRASONIC_ADDRESS              0x02
+#define BUFF_LEN                        9
 
 #include "Bricktronics.h"
-
-class Bricktronics;
+#include "utility/SoftI2cMaster.h"
 
 class Ultrasonic
 {
     public:
-        Ultrasonic(Bricktronics* brick, uint8_t port);
+        // This constructor is for when you are using the Bricktronics Shield
+        Ultrasonic(Bricktronics &brick, uint8_t port);
 
-        Bricktronics* brick;
+        // This constructor is for when you are using the Bricktronics Megashield
+        Ultrasonic(BricktronicsMegashield &brick, uint8_t port);
 
-        uint8_t sda_pin;
-        uint8_t scl_pin;
+        // This constructor is for when you are directly connecting to the sensor
+        Ultrasonic(uint8_t sclPin, uint8_t sdaPin);
 
-        uint8_t b_buf[BUFF_LEN];
-
-        SoftI2cMaster i2c;
         void begin(void);
 
-        char* readString(uint8_t, uint8_t);
-        uint8_t readBytes(uint8_t, uint8_t, uint8_t*);
-        uint8_t readByte(uint8_t);
-        bool writeBytes(uint8_t, uint8_t, uint8_t*);
-        uint8_t writeByte(uint8_t, uint8_t);
-
-        char* getProductID();
-        char* getVersion();
-        char* getSensorType();
+        // Query the ultrasonic sensor for its details:
+        char* getProductID(void);
+        char* getVersion(void);
+        char* getSensorType(void);
 
         uint8_t getDistance(void);
 
-    private:
+    //private:
+        // We don't really like to hide things inside "private", here's why:
+        // 1. If you don't know what you're doing, stick to the items above,
+        // and you'll be just fine whether or not we hide these items below.
+        // 2. If you do know what you're doing, we're saving you a bit of time
+        // having to change the library to make these items below accessible.
+        SoftI2cMaster i2c;
 
+        uint8_t sdaPin;
+        uint8_t sclPin;
+        uint8_t bBuf[BUFF_LEN];
+
+        uint8_t readByte(uint8_t);
+        uint8_t readBytes(uint8_t, uint8_t, uint8_t*);
+        char* readString(uint8_t, uint8_t);
+
+        uint8_t writeByte(uint8_t, uint8_t);
+        bool writeBytes(uint8_t, uint8_t, uint8_t*);
 };
 
 #endif

@@ -1,19 +1,28 @@
-Bricktronics Library v1.0
-December 3rd, 2012
-http://www.wayneandlayne.com/bricktronics
+Bricktronics Library v2.0
+http://www.wayneandlayne.com/bricktronics/
 
 Connect your LEGO Mindstorms NXT sensors and motors to your Arduino using this library.  Examples are included--ones that don't need much building are in the Basics/ directory.  Most of the other examples are code from the book "Make: LEGO and Arduino Projects" by John Baichtal, Matthew Beckler, and Adam Wolf.
 
 Installation
 ============
+There are two ways to install the Bricktronics Library:
+
+1. In the Arduino software, select the "Sketch" menu at the top, then "Import Library..." then "Add Library...". Select the ZIP archive of the Bricktronics library, then press "Ok". The library will be installed for you automatically.
+
+Note that this method is not able to handle updating a library to a newer version. If you want to upgrade your Bricktronics library, please use option 2 below.
+
+2. Manual installation.
 Quit the Arduino application.
 Uncompress the file containing the library.  There should be a directory called Bricktronics, and inside that directory should be a bunch of files and directories, including this one, README.md.
 Copy the Bricktronics folder.
 
-Find your sketchbook directory.  On Windows, this is usually My Documents\Arduino.  On Mac, it is usually Documents/Arduino.  On 
-Linux, it is usually ~/Arduino.
+Find your sketchbook directory.
+On Windows, this is usually My Documents\Arduino.
+On Mac, it is usually Documents/Arduino.
+On Linux, it is usually ~/Arduino.
 If there isn't a libraries directory in your sketchbook directory, create one.
 Paste the Bricktronics library inside the libraries directory in your sketchbook.
+
 
 After all of this, you should be able to open your sketchbook directory, open your libraries directory, open your Bricktronics directory, and see a few directories and files, including this one, README.md.
 
@@ -35,7 +44,7 @@ If you have any questions or comments, please feel free to contact us at our pub
 
 Acknowledgements
 ================
-There were a lot of other libraries used in the creation of the Bricktronics library.  Special thanks to Adafruit, William Grieman, jrraines, the leJOS team, LEGO team!
+There were a lot of other libraries used in the creation of the Bricktronics library.  Special thanks to Adafruit, William Grieman, jrraines, the leJOS team, and LEGO team!
 
 Adafruit MCP23017 Library
 =========================
