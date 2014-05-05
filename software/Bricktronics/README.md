@@ -7,9 +7,7 @@ Installation
 ============
 There are two ways to install the Bricktronics Library:
 
-1. In the Arduino software, select the "Sketch" menu at the top, then "Import Library..." then "Add Library...". Select the ZIP archive of the Bricktronics library, then press "Ok". The library will be installed for you automatically.
-
-Note that this method is not able to handle updating a library to a newer version. If you want to upgrade your Bricktronics library, please use option 2 below.
+1. In the Arduino software, select the "Sketch" menu at the top, then "Import Library..." then "Add Library...". Select the ZIP archive of the Bricktronics library, then press "Ok". The library will be installed for you automatically. Note that this method is not able to handle updating a library to a newer version. If you want to upgrade your Bricktronics library, please use option 2 below.
 
 2. Manual installation.
 Quit the Arduino application.
