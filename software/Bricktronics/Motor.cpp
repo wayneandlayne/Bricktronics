@@ -24,7 +24,26 @@
 // Use functions pointers for the three low-level functions (pinMode, digitalWrite, analogWrite).
 // Common encoder library for all supported platforms?
 
+// This is the simplified constructor that allows you to specify only the five motor pins.
 Motor::Motor(const MotorSettings &settings):
+             _dirPin(settings.dirPin),
+             _pwmPin(settings.pwmPin),
+             _enPin(settings.enPin),
+             _enabled(false),
+             _rawSpeed(0),
+             _pid(&_pidInput, &_pidOutput, &_pidSetpoint, MOTOR_PID_KP, MOTOR_PID_KI, MOTOR_PID_KD, DIRECT),
+             _pidMode(MOTOR_PID_MODE_DISABLED),
+             _encoder(settings.tachPinA, settings.tachPinB),
+             _pinMode(&::pinMode),
+             _digitalWrite(&::digitalWrite),
+             _analogWrite(&::analogWrite)
+{
+    _pid.SetSampleTime(MOTOR_PID_SAMPLE_TIME_MS);
+    _pid.SetOutputLimits(-255, +255);
+}
+
+// This is the complicated constructor that allows for overriding the low-level Arduino functions.
+Motor::Motor(const MotorSettingsAdvanced &settings):
              _dirPin(settings.dirPin),
              _pwmPin(settings.pwmPin),
              _enPin(settings.enPin),

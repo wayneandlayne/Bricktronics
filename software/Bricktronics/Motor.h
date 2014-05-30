@@ -49,7 +49,20 @@
 // as often as this value. Can be updated by the user at runtime if desired.
 #define MOTOR_PID_SAMPLE_TIME_MS    50
 
+// Struct to provide the five motor pins to the library constructor.
 typedef struct MotorSettings
+{
+   uint8_t enPin;
+   uint8_t dirPin;
+   uint8_t pwmPin;
+   uint8_t tachPinA;
+   uint8_t tachPinB;
+} MotorSettings;
+
+// A more complicated settings structure that allows us to do two things:
+// 1. We can specify overrides for the three low-level Arduino functions.
+// 2. This is a different type so it uses the more complicated constructor.
+typedef struct MotorSettingsAdvanced
 {
    uint8_t enPin;
    uint8_t dirPin;
@@ -59,13 +72,17 @@ typedef struct MotorSettings
    void (*pinMode)(uint8_t, uint8_t);
    void (*digitalWrite)(uint8_t, uint8_t);
    void (*analogWrite)(uint8_t, int);
-} MotorSettings;
+} MotorSettingsAdvanced;
 
 class Motor
 {
     public:
-        // Constructor - Provide a MotorSettings struct to construct the object.
+        // Constructor - Simple constructor accepts a MotorSettings struct to construct the object.
         Motor(const MotorSettings &settings);
+
+        // Constructor - Advanced constructor accepts a MotorSettingsAdvanced struct to also override
+        // the low-level Arduino functions.
+        Motor(const MotorSettingsAdvanced &settings);
 
         // TODO Reconsider these functions, if they are a good idea, or if they are even needed...
         // Set the dir/pwm/en pins as outputs and stops the motor.
