@@ -1,118 +1,138 @@
+/*
+   Motor Driver for Arduino
+   This is the version for use with the Bricktronics Motor Driver board.
+   Copyright (C) 2014 Adam Wolf, Matthew Beckler, John Baichtal
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License
+   as published by the Free Software Foundation; either version 2
+   of the License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+
 #include "Motor.h"
 
-Motor::Motor(Bricktronics* b,
-             uint8_t dir_p,
-             uint8_t pwm_p,
-             uint8_t en_p,
-             uint8_t tach_a_p,
-             uint8_t tach_b_p)
+// Newest plan: Shared Bricktronics library for all platforms (Arduino, ChipKit, Teensy, RasPi, etc).
+// Use functions pointers for the three low-level functions (pinMode, digitalWrite, analogWrite).
+// Common encoder library for all supported platforms?
+
+Motor::Motor(const MotorSettings &settings):
+             _dirPin(settings.dirPin),
+             _pwmPin(settings.pwmPin),
+             _enPin(settings.enPin),
+             _enabled(false),
+             _rawSpeed(0),
+             _pid(&_pidInput, &_pidOutput, &_pidSetpoint, MOTOR_PID_KP, MOTOR_PID_KI, MOTOR_PID_KD, DIRECT),
+             _pidMode(MOTOR_PID_MODE_DISABLED),
+             _encoder(settings.tachPinA, settings.tachPinB),
+             _pinMode(settings.pinMode),
+             _digitalWrite(settings.digitalWrite),
+             _analogWrite(settings.analogWrite)
 {
-    brick = b;
-    dir_pin = dir_p;
-    pwm_pin = pwm_p;
-    en_pin = en_p;
-    encoder = new Encoder(tach_a_p, tach_b_p);
+    _pid.SetSampleTime(MOTOR_PID_SAMPLE_TIME_MS);
+    _pid.SetOutputLimits(-255, +255);
 }
 
-Motor::Motor(Bricktronics* b, uint8_t port)
+
+int32_t Motor::getPosition(void)
 {
-    brick = b;
-    set_port(port);
+   return _encoder.read();
 }
+
+void Motor::setPosition(int32_t pos)
+{
+   _encoder.write(pos);
+}
+
+
 
 void Motor::begin(void)
 {
-    brick->pinMode(dir_pin, OUTPUT);
-    brick->pinMode(pwm_pin, OUTPUT);
-    brick->pinMode(en_pin, OUTPUT);
+    _enabled = true;
+    stop();
+    pinMode(_dirPin, OUTPUT);
+    pinMode(_pwmPin, OUTPUT);
+    pinMode(_enPin, OUTPUT);
+}
+
+void Motor::enable(void)
+{
+    begin();
+}
+
+void Motor::disable(void)
+{
+    _enabled = false;
+    pinMode(_dirPin, INPUT);
+    pinMode(_pwmPin, INPUT);
+    pinMode(_enPin, INPUT);
 }
 
 void Motor::stop(void)
 {
-    enabled = false;
-    brick->digitalWrite(en_pin, LOW);
-    brick->digitalWrite(dir_pin, LOW);
-    brick->digitalWrite(pwm_pin, LOW);
+    digitalWrite(_enPin, LOW);
+    digitalWrite(_dirPin, LOW);
+    digitalWrite(_pwmPin, LOW);
 }
 
-void Motor::set_port(uint8_t port)
-{
-    //do this better.
-    // TODO We are using new here on the Encoder object - Should we free this next time we call set_port?
-    // if (encoder)
-    //     free(encoder);
-    // or something like that?
-    if (port == 1)
-    {
-        dir_pin = MOTOR_1_DIR;
-        pwm_pin = MOTOR_1_PWM;
-        en_pin = MOTOR_1_EN;
-        encoder = new Encoder(MOTOR_1_TACH_0, MOTOR_1_TACH_1);
-    }
-    else if (port == 2)
-    {
-        dir_pin = MOTOR_2_DIR;
-        pwm_pin = MOTOR_2_PWM;
-        en_pin = MOTOR_2_EN;
-        encoder = new Encoder(MOTOR_2_TACH_0, MOTOR_2_TACH_1);
-    }
-}
 
-void Motor::set_speed(int16_t s)
+// RAW UNCONTROLLED SPEED FUNCTION
+void Motor::_rawSetSpeed(int16_t s)
 {
-    speed = s;
+    _rawSpeed = s;
     if (s == 0)
     {
         stop();
     }
     else if (s < 0)
     {
-        brick->digitalWrite(dir_pin, HIGH);
-        analogWrite(pwm_pin, 255+s);
-        brick->digitalWrite(en_pin, HIGH);
+        digitalWrite(_dirPin, HIGH);
+        analogWrite(_pwmPin, 255 + s);
+        digitalWrite(_enPin, HIGH);
     }
     else
     {
-        brick->digitalWrite(dir_pin, LOW);
-        analogWrite(pwm_pin, s);
-        brick->digitalWrite(en_pin, HIGH);
+        digitalWrite(_dirPin, LOW);
+        analogWrite(_pwmPin, s);
+        digitalWrite(_enPin, HIGH);
     }
 }
 
-int16_t Motor::get_speed(void)
+
+
+
+void Motor::update(void)
 {
-    return speed;
+   switch (_pidMode)
+   {
+      case MOTOR_PID_MODE_POSITION:
+         _pidInput = _encoder.read();
+         _pid.Compute();
+         _rawSetSpeed(_pidOutput);
+         break;
+
+      case MOTOR_PID_MODE_SPEED:
+         // TODO how can we determine the current speed if this is being called frequently
+
+         break;
+
+      default: // includes MOTOR_PID_MODE_DISABLED
+         break;
+   }
 }
 
-int32_t Motor::get_pos(void)
+void Motor::setUpdateFrequencyMS(int timeMS)
 {
-    return encoder->read();
+   _pid.SetSampleTime(timeMS);
 }
 
-void Motor::set_pos(int32_t pos)
-{
-    encoder->write(pos);
-}
 
-void PIDMotor::go_to_pos(int16_t pos)
-{
-    // clear out errors
-    last_error = 0;
-    sum_error = 0;
-    destination_pos = pos;
-}
-
-void PIDMotor::update(void)
-{
-    int16_t curr_position = encoder->read();
-    int32_t error = curr_position - destination_pos;
-    int32_t speed = mKP * error;
-    speed += mKD * (error - last_error);
-    speed += mKI * sum_error;
-    last_error = error;
-    sum_error += error;
-    sum_error = constrain(sum_error, -255, 255);
-    speed = constrain(speed, -255, 255);
-    set_speed(speed);
-}
 
