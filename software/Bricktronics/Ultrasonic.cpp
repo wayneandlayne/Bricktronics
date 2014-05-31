@@ -1,69 +1,78 @@
+/*
+    TODO description and copyright notes
+*/
+
 #include "Ultrasonic.h"
 
-Ultrasonic::Ultrasonic(Bricktronics* b,	uint8_t port)
+// TODO finish cleaning up variable names and stuff
+// TODO finish dividing things into public and "private"
+
+Ultrasonic::Ultrasonic(uint8_t sclPin, uint8_t sdaPin):
+    _sclPin(sclPin),
+    _sdaPin(sdaPin),
+    _i2c(),
+    _pinMode(&::pinMode),
+    _digitalWrite(&::digitalWrite),
+    _digitalRead(&::digitalRead)
 {
-    brick = b;
+    // Nothing to do here
+}
 
-    //TODO: do this a better way
-    switch (port)
-    {
-        case 3:
-            scl_pin = S3_DA;
-            sda_pin = S3_DB;
-            break;
-        case 4:
-            scl_pin = S4_DA;
-            sda_pin = S4_DB;
-            break;
-    }
-
-    SoftI2cMaster i2c;
+Ultrasonic::Ultrasonic(const SensorSettings &settings):
+    _sclPin(settings.DA),
+    _sdaPin(settings.DB),
+    _i2c(),
+    _pinMode(&::pinMode),
+    _digitalWrite(&::digitalWrite),
+    _digitalRead(&::digitalRead)
+{
+    // Nothing to do here
 }
 
 void Ultrasonic::begin(void)
 {
-    i2c.init(scl_pin, sda_pin);
+    _i2c.init(_sclPin, _sdaPin);
 }
 
 char* Ultrasonic::readString(uint8_t startRegister, uint8_t bytes)
 {
-    readBytes(startRegister, bytes, b_buf);
-    b_buf[BUFF_LEN-1] = 0;
-    return (char*) b_buf;
+    readBytes(startRegister, bytes, _bBuf);
+    _bBuf[ULTRASONIC_BUFF_LEN-1] = 0;
+    return (char*) _bBuf;
 }
 
 uint8_t Ultrasonic::readBytes(uint8_t startRegister, uint8_t bytes, uint8_t* buf)
 {
-    if (!(i2c.start(ULTRASONIC_ADDRESS | I2C_WRITE)))  //Try to start, with a write address
+    if (!(_i2c.start(ULTRASONIC_ADDRESS | I2C_WRITE)))  //Try to start, with a write address
     {
         return false;//if it fails, return false.
     }
 
-    if (!(i2c.write(startRegister))) //Try to start a write
+    if (!(_i2c.write(startRegister))) //Try to start a write
     {
         return false; //if it fails, return false.
     }
 
     //Do an i2c restart.  See HDK for details.
-    if (!(i2c.restart(ULTRASONIC_ADDRESS | I2C_READ)))
+    if (!(_i2c.restart(ULTRASONIC_ADDRESS | I2C_READ)))
     {
         return false;
     }
 
 
     for (uint8_t i = 0; i < bytes-1; i++) {
-        buf[i] = i2c.read(false); //read, and then send ack
+        buf[i] = _i2c.read(false); //read, and then send ack
     }
-    buf[bytes-1] = i2c.read(true); //read the last byte, then send nak
+    buf[bytes-1] = _i2c.read(true); //read the last byte, then send nak
 
-    i2c.stop();
+    _i2c.stop();
     return true;
 }
 
 uint8_t Ultrasonic::readByte(uint8_t address)
 {
-    readBytes(address, 1, b_buf);
-    return b_buf[0];
+    readBytes(address, 1, _bBuf);
+    return _bBuf[0];
 }
 
 bool Ultrasonic::writeBytes(uint8_t first_register_address,
@@ -72,27 +81,27 @@ bool Ultrasonic::writeBytes(uint8_t first_register_address,
 {
     if (!buffer)
     {
-        buffer = b_buf;
+        buffer = _bBuf;
     }
 
-    if (!i2c.start(ULTRASONIC_ADDRESS | I2C_WRITE))
+    if (!_i2c.start(ULTRASONIC_ADDRESS | I2C_WRITE))
     {
         return false;
     }
 
-    if (!i2c.write(first_register_address))
+    if (!_i2c.write(first_register_address))
     {
         return false;
     }
 
     for (int i = 0; i < num_of_bytes; i++)
     {
-        if (!i2c.write(buffer[i]))
+        if (!_i2c.write(buffer[i]))
         {
             return false;
         }
     }
-    i2c.stop();
+    _i2c.stop();
     return true;
 
 }
@@ -103,20 +112,20 @@ uint8_t Ultrasonic::writeByte(uint8_t address, uint8_t data)
 }
 
 char* Ultrasonic::getVersion(void) {
-    return readString(GET_VERSION, 8);
+    return readString(ULTRASONIC_GET_VERSION, 8);
 }
 
 char* Ultrasonic::getProductID(void) {
-    return readString(GET_PRODUCT_ID, 8);
+    return readString(ULTRASONIC_GET_PRODUCT_ID, 8);
 }
 
 char* Ultrasonic::getSensorType(void) {
-    return readString(GET_SENSOR_TYPE, 8);
+    return readString(ULTRASONIC_GET_SENSOR_TYPE, 8);
 }
 
 uint8_t Ultrasonic::getDistance(void)
 {
-    writeByte(READ_COMMAND, ULTRASONIC_ADDRESS);
+    writeByte(ULTRASONIC_READ_COMMAND, ULTRASONIC_ADDRESS);
     delay(20);
-    return readByte(READ_MEASUREMENT_BYTE_ZERO);
+    return readByte(ULTRASONIC_READ_MEASUREMENT_BYTE_ZERO);
 }
