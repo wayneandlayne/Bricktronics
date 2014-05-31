@@ -1,17 +1,21 @@
-/* Bricktronics Library -- ColorSensor.h
-Copyright (C) 2013 Adam Wolf, Matthew Beckler, John Baichtal
+/*
+    Bricktronics Library for LEGO NXT Color sensors.
+    Copyright (C) 2014 Adam Wolf, Matthew Beckler, John Baichtal
 
-The contents of this file are subject to the Mozilla Public License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
-Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
+    The contents of this file are subject to the Mozilla Public License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
 
-The Original Code is from leJos.
+    Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
 
-The Initial Developer of the Original Code is leJos. All Rights Reserved.
+    The Original Code is from leJos.
 
-Contributor(s): Adam Wolf, Matthew Beckler, John Baichtal.''
+    The Initial Developer of the Original Code is leJos. All Rights Reserved.
 
-Most of the stuff here is original to Wayne and Layne, but one or two functions are straight from leJos, an open source alternative firmware for the NXT.
+    Contributor(s): Adam Wolf, Matthew Beckler, John Baichtal.
 
+    Most of the stuff here is original to Wayne and Layne, but one or two functions are straight from leJos, an open source alternative firmware for the NXT.
+
+    Wayne and Layne, LLC and our products are not connected to or endorsed by the LEGO Group.
+    LEGO, Mindstorms, and NXT are trademarks of the LEGO Group.
 */
 
 #ifndef COLORSENSOR_H
@@ -43,10 +47,6 @@ Most of the stuff here is original to Wayne and Layne, but one or two functions 
 #define CAL_COLUMNS 4
 #define CAL_ROWS 3
 #define CAL_LIMITS 2
-
-#include "Bricktronics.h"
-
-class Bricktronics;
 
 class ColorSensor
 {
