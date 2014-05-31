@@ -1,27 +1,27 @@
 /*
-   Motor Driver for Arduino
-   This is the version for use with the Bricktronics Motor Driver board.
-   Copyright (C) 2014 Adam Wolf, Matthew Beckler, John Baichtal
+    Motor Driver for Arduino
+    This is the version for use with the Bricktronics Motor Driver board.
+    Copyright (C) 2014 Adam Wolf, Matthew Beckler, John Baichtal
 
-   This program is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 2
-   of the License, or (at your option) any later version.
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either version 2
+    of the License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include "Motor.h"
 
 // Newest plan: Shared Bricktronics library for all platforms (Arduino, ChipKit, Teensy, RasPi, etc).
-// Use functions pointers for the three low-level functions (pinMode, digitalWrite, analogWrite).
+// Use functions pointers for the low-level functions (pinMode and digitalWrite).
 // Common encoder library for all supported platforms?
 
 // This is the simplified constructor that allows you to specify only the five motor pins.
@@ -35,8 +35,7 @@ Motor::Motor(const MotorSettings &settings):
              _pidMode(MOTOR_PID_MODE_DISABLED),
              _encoder(settings.tachPinA, settings.tachPinB),
              _pinMode(&::pinMode),
-             _digitalWrite(&::digitalWrite),
-             _analogWrite(&::analogWrite)
+             _digitalWrite(&::digitalWrite)
 {
     _pid.SetSampleTime(MOTOR_PID_SAMPLE_TIME_MS);
     _pid.SetOutputLimits(-255, +255);
@@ -53,8 +52,7 @@ Motor::Motor(const MotorSettingsAdvanced &settings):
              _pidMode(MOTOR_PID_MODE_DISABLED),
              _encoder(settings.tachPinA, settings.tachPinB),
              _pinMode(settings.pinMode),
-             _digitalWrite(settings.digitalWrite),
-             _analogWrite(settings.analogWrite)
+             _digitalWrite(settings.digitalWrite)
 {
     _pid.SetSampleTime(MOTOR_PID_SAMPLE_TIME_MS);
     _pid.SetOutputLimits(-255, +255);
@@ -77,9 +75,9 @@ void Motor::begin(void)
 {
     _enabled = true;
     stop();
-    pinMode(_dirPin, OUTPUT);
-    pinMode(_pwmPin, OUTPUT);
-    pinMode(_enPin, OUTPUT);
+    _pinMode(_dirPin, OUTPUT);
+    _pinMode(_pwmPin, OUTPUT);
+    _pinMode(_enPin, OUTPUT);
 }
 
 void Motor::enable(void)
@@ -90,16 +88,16 @@ void Motor::enable(void)
 void Motor::disable(void)
 {
     _enabled = false;
-    pinMode(_dirPin, INPUT);
-    pinMode(_pwmPin, INPUT);
-    pinMode(_enPin, INPUT);
+    _pinMode(_dirPin, INPUT);
+    _pinMode(_pwmPin, INPUT);
+    _pinMode(_enPin, INPUT);
 }
 
 void Motor::stop(void)
 {
-    digitalWrite(_enPin, LOW);
-    digitalWrite(_dirPin, LOW);
-    digitalWrite(_pwmPin, LOW);
+    _digitalWrite(_enPin, LOW);
+    _digitalWrite(_dirPin, LOW);
+    _digitalWrite(_pwmPin, LOW);
 }
 
 

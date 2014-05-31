@@ -19,25 +19,41 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef BUTTON_H
 #define BUTTON_H
 
-#include "Bricktronics.h"
+#include "Sensors.h"
 
-class Bricktronics;
+// Need this for the functions line pinMode, digitalRead, etc
+#if ARDUINO >= 100
+#include "Arduino.h"
+#else
+#include "WProgram.h"
+#endif
 
 class Button
 {
     public:
-        Button(Bricktronics* brick, uint8_t port);
+        // Constructor - 
+        Button(const SensorSettings &settings);
 
-        Bricktronics* brick;
-
-        uint8_t input_pin;
+        // Constructor - 
+        Button(const SensorSettingsAdvanced &settings);
 
         void begin(void);
 
-        bool is_pressed();
-        bool is_released();
+        bool isPressed();
+        bool isReleased();
 
-    private:
+    //private:
+        // We really don't like to hide things inside private,
+        // but if we did, these would be the private items.
+        uint8_t _inputPin;
+
+        // For the Bricktronics Shield, which has an I2C I/O expander chip, we need a way to
+        // override some common Arduino functions. We use function pointers here to handle this.
+        // For the non-Bricktronics Shield cases, the simple constructor above provides the built-in functions.
+        void (*_pinMode)(uint8_t, uint8_t);
+        void (*_pullUp)(uint8_t, uint8_t);
+        int (*_digitalRead)(uint8_t);
+
 };
 
 #endif

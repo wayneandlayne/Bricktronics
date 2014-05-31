@@ -60,7 +60,7 @@ typedef struct MotorSettings
 } MotorSettings;
 
 // A more complicated settings structure that allows us to do two things:
-// 1. We can specify overrides for the three low-level Arduino functions.
+// 1. We can specify overrides for the two low-level Arduino functions.
 // 2. This is a different type so it uses the more complicated constructor.
 typedef struct MotorSettingsAdvanced
 {
@@ -71,7 +71,6 @@ typedef struct MotorSettingsAdvanced
    uint8_t tachPinB;
    void (*pinMode)(uint8_t, uint8_t);
    void (*digitalWrite)(uint8_t, uint8_t);
-   void (*analogWrite)(uint8_t, int);
 } MotorSettingsAdvanced;
 
 class Motor
@@ -154,11 +153,9 @@ class Motor
 
         // For the Bricktronics Shield, which has an I2C I/O expander chip, we need a way to
         // override some common Arduino functions. We use function pointers here to handle this.
-        // For the non-Bricktronics Shield cases, the constructor above provides the built-in functions.
+        // For the non-Bricktronics Shield cases, the simple constructor above provides the built-in functions.
         void (*_pinMode)(uint8_t, uint8_t);
         void (*_digitalWrite)(uint8_t, uint8_t);
-        void (*_analogWrite)(uint8_t, int);
-
 
 };
 

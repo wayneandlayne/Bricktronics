@@ -1,50 +1,40 @@
+/*
+    TODO description and copyright notes
+*/
+
 #include "Button.h"
 
-Button::Button(Bricktronics* b,	uint8_t port)
+Button::Button(const SensorSettings &settings):
+    _inputPin(settings.ANA),
+    _pinMode(pinMode),
+    _pullUp(&::pullUp),
+    _digitalRead(&::digitalRead)
 {
-    brick = b;
+    // Nothing to do here
+}
 
-    //TODO: do this a better way
-    switch (port)
-    {
-    case 1:
-        input_pin = S1_ANA;
-        break;
-    case 2:
-        input_pin = S2_ANA;
-        break;
-    case 3:
-        input_pin = S3_ANA;
-        break;
-    case 4:
-        input_pin = S4_ANA;
-        break;
-    }
+Button::Button(const SensorSettingsAdvanced &settings):
+    _inputPin(settings.ANA),
+    _pinMode(settings.pinMode),
+    _pullUp(settings.pullUp),
+    _digitalRead(settings.digitalRead)
+{
+    // Nothing to do here
 }
 
 void Button::begin(void)
 {
-    brick->pinMode(input_pin, INPUT);
-    brick->pullUp(input_pin, HIGH);
+    _pinMode(_inputPin, INPUT);
+    _pullUp(_inputPin, HIGH);
 }
 
-bool Button::is_pressed()
+bool Button::isPressed()
 {
-    if (brick->digitalRead(input_pin) == HIGH)
-    {
-        return false;
-    } else {
-        return true;
-    }
+    return (_digitalRead(_inputPin) == LOW);
 }
 
-bool Button::is_released()
+bool Button::isReleased()
 {
-    if (brick->digitalRead(input_pin) == LOW)
-    {
-        return false;
-    } else {
-        return true;
-    }
+    return (_digitalRead(_inputPin) == HIGH);
 }
 
