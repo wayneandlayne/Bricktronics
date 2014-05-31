@@ -49,20 +49,11 @@
 // as often as this value. Can be updated by the user at runtime if desired.
 #define MOTOR_PID_SAMPLE_TIME_MS    50
 
-// Struct to provide the five motor pins to the library constructor.
+// To make it easy to get all the motor settings from the Bricktronics
+// class, we created a struct that contains all our settings, including
+// all five motor pin connections, as well as optional overrides to the
+// low-level Arduino functions.
 typedef struct MotorSettings
-{
-   uint8_t enPin;
-   uint8_t dirPin;
-   uint8_t pwmPin;
-   uint8_t tachPinA;
-   uint8_t tachPinB;
-} MotorSettings;
-
-// A more complicated settings structure that allows us to do two things:
-// 1. We can specify overrides for the two low-level Arduino functions.
-// 2. This is a different type so it uses the more complicated constructor.
-typedef struct MotorSettingsAdvanced
 {
    uint8_t enPin;
    uint8_t dirPin;
@@ -71,17 +62,22 @@ typedef struct MotorSettingsAdvanced
    uint8_t tachPinB;
    void (*pinMode)(uint8_t, uint8_t);
    void (*digitalWrite)(uint8_t, uint8_t);
-} MotorSettingsAdvanced;
+   int (*digitalRead)(uint8_t);
+} MotorSettings;
 
 class Motor
 {
     public:
-        // Constructor - Simple constructor accepts a MotorSettings struct to construct the object.
-        Motor(const MotorSettings &settings);
+        // Constructor - Simple constructor accepts the five motor pins
+        Motor(uint8_t enPin,
+              uint8_t dirPin,
+              uint8_t pwmPin,
+              uint8_t tachPinA,
+              uint8_t tachPinB);
 
-        // Constructor - Advanced constructor accepts a MotorSettingsAdvanced struct to also override
-        // the low-level Arduino functions.
-        Motor(const MotorSettingsAdvanced &settings);
+        // Constructor - Advanced constructor accepts a MotorSettings struct
+        // to also override the low-level Arduino functions.
+        Motor(const MotorSettings &settings);
 
         // TODO Reconsider these functions, if they are a good idea, or if they are even needed...
         // Set the dir/pwm/en pins as outputs and stops the motor.
@@ -127,12 +123,13 @@ class Motor
         // Go to angle, blocking?
         // Go to position, non-blocking?
 
+
     //private:
         // We really don't like to hide things inside private,
         // but if we did, these would be the private items.
+        uint8_t _enPin;
         uint8_t _dirPin;
         uint8_t _pwmPin;
-        uint8_t _enPin;
 
         bool _enabled;
         uint16_t _rawSpeed;
@@ -156,6 +153,7 @@ class Motor
         // For the non-Bricktronics Shield cases, the simple constructor above provides the built-in functions.
         void (*_pinMode)(uint8_t, uint8_t);
         void (*_digitalWrite)(uint8_t, uint8_t);
+        int (*_digitalRead)(uint8_t);
 
 };
 

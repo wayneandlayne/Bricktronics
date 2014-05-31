@@ -52,14 +52,14 @@ class Bricktronics
         static void begin(void);
 
         // Bricktronics Shield motor settings
-        static const MotorSettingsAdvanced BS_MOTOR_1;
-        static const MotorSettingsAdvanced BS_MOTOR_2;
+        static const MotorSettings BS_MOTOR_1;
+        static const MotorSettings BS_MOTOR_2;
 
         // Bricktronics Shield sensor settings
-        static const SensorSettingsAdvanced BS_SENSOR_1;
-        static const SensorSettingsAdvanced BS_SENSOR_2;
-        static const SensorSettingsAdvanced BS_SENSOR_3;
-        static const SensorSettingsAdvanced BS_SENSOR_4;
+        static const SensorSettings BS_SENSOR_1;
+        static const SensorSettings BS_SENSOR_2;
+        static const SensorSettings BS_SENSOR_3;
+        static const SensorSettings BS_SENSOR_4;
 
         // Bricktronics Megashield motor settings
         static const MotorSettings BMS_MOTOR_1;
@@ -75,18 +75,14 @@ class Bricktronics
         static const SensorSettings BMS_SENSOR_3;
         static const SensorSettings BMS_SENSOR_4;
 
+        // These version of the standard low-level Arduino functions
+        // check to see if the referenced pin is > 64 (indicating that
+        // the pin is accessed via the MCP I/O expander chip). If so,
+        // the pin operation is delegated to the MCP chip, otherwise the
+        // standard Arduino version of the function is called.
+        static void pinMode(uint8_t pin, uint8_t mode);
         static void digitalWrite(uint8_t pin, uint8_t level);
         static int digitalRead(uint8_t pin);
-        static void pinMode(uint8_t pin, uint8_t mode);
-
-        // TODO Arduino no longer (or never did) provide a pullUp function,
-        // instead having a new option INPUT_PULLUP for pinMode().
-        // Since the MCP makes us handle pullups separately, we need to
-        // think about how to handle this nicely, probably by making the
-        // Bricktronics pinMode function smarter:
-        // If normal pin: pass mode right to standard pinMode
-        // If MCP pin: set pin to in/out, then enable pullup if mode==INPUT_PULLUP
-        static void pullUp(uint8_t pin, uint8_t level);
 };
 
 #endif // #ifndef BRICKTRONICS_H

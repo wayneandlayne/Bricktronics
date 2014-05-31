@@ -31,29 +31,32 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 class Button
 {
     public:
-        // Constructor - 
-        Button(const SensorSettings &settings);
+        // Constructor - Simple constructor accepts an input pin
+        Button(uint8_t inputPin);
 
-        // Constructor - 
-        Button(const SensorSettingsAdvanced &settings);
+        // Constructor - Advanced constructor accepts a SensorSettings
+        // struct to also override the low-level Arduino functions.
+        Button(const SensorSettings &settings);
 
         void begin(void);
 
         bool isPressed();
         bool isReleased();
 
+
     //private:
         // We really don't like to hide things inside private,
         // but if we did, these would be the private items.
         uint8_t _inputPin;
 
-        // For the Bricktronics Shield, which has an I2C I/O expander chip, we need a way to
-        // override some common Arduino functions. We use function pointers here to handle this.
-        // For the non-Bricktronics Shield cases, the simple constructor above provides the built-in functions.
+        // For the Bricktronics Shield, which has an I2C I/O expander chip,
+        // we need a way to override some common Arduino functions. We use
+        // function pointers here to handle this. For the non-Bricktronics
+        // Shield cases, the simple constructor above provides the built-in
+        // functions.
         void (*_pinMode)(uint8_t, uint8_t);
-        void (*_pullUp)(uint8_t, uint8_t);
+        void (*_digitalWrite)(uint8_t, uint8_t);
         int (*_digitalRead)(uint8_t);
-
 };
 
 #endif

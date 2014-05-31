@@ -24,35 +24,39 @@
 // Use functions pointers for the low-level functions (pinMode and digitalWrite).
 // Common encoder library for all supported platforms?
 
-// This is the simplified constructor that allows you to specify only the five motor pins.
-Motor::Motor(const MotorSettings &settings):
-             _dirPin(settings.dirPin),
-             _pwmPin(settings.pwmPin),
-             _enPin(settings.enPin),
+// This is the simplified constructor that allows you to specify only the
+// five motor pins.
+Motor::Motor(uint8_t enPin, uint8_t dirPin, uint8_t pwmPin, uint8_t tachPinA, uint8_t tachPinB):
+             _enPin(enPin),
+             _dirPin(dirPin),
+             _pwmPin(pwmPin),
              _enabled(false),
              _rawSpeed(0),
              _pid(&_pidInput, &_pidOutput, &_pidSetpoint, MOTOR_PID_KP, MOTOR_PID_KI, MOTOR_PID_KD, DIRECT),
              _pidMode(MOTOR_PID_MODE_DISABLED),
-             _encoder(settings.tachPinA, settings.tachPinB),
+             _encoder(tachPinA, tachPinB),
              _pinMode(&::pinMode),
-             _digitalWrite(&::digitalWrite)
+             _digitalWrite(&::digitalWrite),
+             _digitalRead(&::digitalRead)
 {
     _pid.SetSampleTime(MOTOR_PID_SAMPLE_TIME_MS);
     _pid.SetOutputLimits(-255, +255);
 }
 
-// This is the complicated constructor that allows for overriding the low-level Arduino functions.
-Motor::Motor(const MotorSettingsAdvanced &settings):
+// This is the complicated constructor that allows for overriding the
+// low-level Arduino functions.
+Motor::Motor(const MotorSettings &settings):
+             _enPin(settings.enPin),
              _dirPin(settings.dirPin),
              _pwmPin(settings.pwmPin),
-             _enPin(settings.enPin),
              _enabled(false),
              _rawSpeed(0),
              _pid(&_pidInput, &_pidOutput, &_pidSetpoint, MOTOR_PID_KP, MOTOR_PID_KI, MOTOR_PID_KD, DIRECT),
              _pidMode(MOTOR_PID_MODE_DISABLED),
              _encoder(settings.tachPinA, settings.tachPinB),
              _pinMode(settings.pinMode),
-             _digitalWrite(settings.digitalWrite)
+             _digitalWrite(settings.digitalWrite),
+             _digitalRead(settings.digitalRead)
 {
     _pid.SetSampleTime(MOTOR_PID_SAMPLE_TIME_MS);
     _pid.SetOutputLimits(-255, +255);

@@ -4,19 +4,19 @@
 
 #include "Button.h"
 
-Button::Button(const SensorSettings &settings):
-    _inputPin(settings.ANA),
-    _pinMode(pinMode),
-    _pullUp(&::pullUp),
+Button::Button(uint8_t inputPin):
+    _inputPin(inputPin),
+    _pinMode(&::pinMode),
+    _digitalWrite(&::digitalWrite),
     _digitalRead(&::digitalRead)
 {
     // Nothing to do here
 }
 
-Button::Button(const SensorSettingsAdvanced &settings):
+Button::Button(const SensorSettings &settings):
     _inputPin(settings.ANA),
     _pinMode(settings.pinMode),
-    _pullUp(settings.pullUp),
+    _digitalWrite(settings.digitalWrite),
     _digitalRead(settings.digitalRead)
 {
     // Nothing to do here
@@ -24,8 +24,7 @@ Button::Button(const SensorSettingsAdvanced &settings):
 
 void Button::begin(void)
 {
-    _pinMode(_inputPin, INPUT);
-    _pullUp(_inputPin, HIGH);
+    _pinMode(_inputPin, INPUT_PULLUP);
 }
 
 bool Button::isPressed()

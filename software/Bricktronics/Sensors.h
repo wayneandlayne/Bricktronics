@@ -30,17 +30,10 @@ typedef struct SensorSettings
    uint8_t ANA;
    uint8_t DA;
    uint8_t DB;
-} SensorSettings;
-
-typedef struct SensorSettingsAdvanced
-{
-   uint8_t ANA;
-   uint8_t DA;
-   uint8_t DB;
    void (*pinMode)(uint8_t, uint8_t);
-   void (*pullUp)(uint8_t, uint8_t);
+   void (*digitalWrite)(uint8_t, uint8_t);
    int (*digitalRead)(uint8_t);
-} SensorSettingsAdvanced;
+} SensorSettings;
 
 #endif
 
