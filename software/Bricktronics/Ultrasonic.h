@@ -79,11 +79,11 @@ class Ultrasonic
         uint8_t _bBuf[ULTRASONIC_BUFF_LEN];
 
         // TODO are these "private"?
-        char* readString(uint8_t, uint8_t);
-        uint8_t readBytes(uint8_t, uint8_t, uint8_t*);
-        uint8_t readByte(uint8_t);
-        bool writeBytes(uint8_t, uint8_t, uint8_t*);
-        uint8_t writeByte(uint8_t, uint8_t);
+        char* readString(uint8_t startAddress, uint8_t numBytes);
+        uint8_t readBytes(uint8_t startAddress, uint8_t numBytes, uint8_t *buffer);
+        uint8_t readByte(uint8_t address);
+        bool writeBytes(uint8_t startAddress, uint8_t numBytes, uint8_t *buffer);
+        uint8_t writeByte(uint8_t address, uint8_t data);
 
         // For the Bricktronics Shield, which has an I2C I/O expander chip,
         // we need a way to override some common Arduino functions. We use
