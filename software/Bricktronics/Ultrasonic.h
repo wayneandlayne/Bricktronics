@@ -59,6 +59,7 @@ class Ultrasonic
         // struct to also override the low-level Arduino functions.
         Ultrasonic(const SensorSettings &settings);
 
+        // Starts up the sensor
         void begin(void);
 
         char* getProductID();

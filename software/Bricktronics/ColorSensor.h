@@ -3,7 +3,6 @@
     Copyright (C) 2014 Adam Wolf, Matthew Beckler, John Baichtal
 
     The contents of this file are subject to the Mozilla Public License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
-
     Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
 
     The Original Code is from leJos.
@@ -21,81 +20,94 @@
 #ifndef COLORSENSOR_H
 #define COLORSENSOR_H
 
-#define COLOR_BLACK 1
-#define COLOR_BLUE 2
-#define COLOR_GREEN 3
-#define COLOR_YELLOW 4
-#define COLOR_RED 5
-#define COLOR_WHITE 6
+#define COLOR_BLACK         1
+#define COLOR_BLUE          2
+#define COLOR_GREEN         3
+#define COLOR_YELLOW        4
+#define COLOR_RED           5
+#define COLOR_WHITE         6
 
-#define INDEX_RED 0
-#define INDEX_GREEN 1
-#define INDEX_BLUE 2
-#define INDEX_BLANK 3
+#define INDEX_RED           0
+#define INDEX_GREEN         1
+#define INDEX_BLUE          2
+#define INDEX_BLANK         3
 
-#define TYPE_COLORFULL 13
-#define TYPE_COLORRED 14
-#define TYPE_COLORGREEN 15
-#define TYPE_COLORBLUE 16
-#define TYPE_COLORNONE 17
+#define TYPE_COLORFULL      13
+#define TYPE_COLORRED       14
+#define TYPE_COLORGREEN     15
+#define TYPE_COLORBLUE      16
+#define TYPE_COLORNONE      17
 
-#define ADVOLTS 3300
-#define ADMAX 1023
-#define SENSORMAX ADMAX
-#define MINBLANKVAL (214 / (ADVOLTS / ADMAX))
+#define ADVOLTS             3300
+#define ADMAX               1023
+#define SENSORMAX           ADMAX
+#define MINBLANKVAL         (214 / (ADVOLTS / ADMAX))
 
-#define CAL_COLUMNS 4
-#define CAL_ROWS 3
-#define CAL_LIMITS 2
+#define CAL_COLUMNS         4
+#define CAL_ROWS            3
+#define CAL_LIMITS          2
+
+#include "Bricktronics.h"
 
 class ColorSensor
 {
     public:
-        ColorSensor(Bricktronics* brick, uint8_t port);
+        // Constructor - Simple constructor accepts the clock and data pins
+        ColorSensor(uint8_t clockPin, uint8_t dataPin);
 
-        Bricktronics* brick;
+        // Constructor - Advanced constructor accepts a SensorSettings
+        // struct to also override the low-level Arduino functions
+        ColorSensor(const SensorSettings &settings);
 
+        // Starts up the sensor. Since it uses an RGB LED to shine light to
+        // detect the reflectance, you can specify what color to shine:
+        // Either all colors (TYPE_COLORFULL, the default) or specify a
+        // specific color mode type.
+        void begin(void);
+        void begin(uint8_t modeType);
+
+        // Read the sensor and return a COLOR_* value
+        uint8_t getColor(void);
+
+        // Printes out a human-readable color name to the Serial port
+        // Pass in the output from getColor()
+        // TODO make this Steam-compatible so it can work with other streams?
+        void printColor(uint8_t);
+
+
+    //private:
+        // We really don't like to hide things inside private,
+        // but if we did, these would be the private items.
         unsigned long calData[CAL_ROWS][CAL_COLUMNS];
 
-        long calLimits[CAL_LIMITS];
+        long _calLimits[CAL_LIMITS];
 
-        uint16_t raw_values[4];
-        uint16_t cal_values[4];
+        uint16_t _rawValues[4];
+        uint16_t _calValues[4];
 
-        uint16_t mode;
-        uint16_t type;
+        uint16_t _mode;
+        uint16_t _type;
 
-        uint8_t _data;
-        uint8_t _clock;
+        uint8_t _clockPin;
+        uint8_t _dataPin;
 
-        void set_clock(int val);
-        void set_data(int val);
-        bool get_data();
-        int read_data();
-        void send_mode(unsigned int mode);
-        char read_byte_new();
-        char read_byte();
-        unsigned int calc_CRC(unsigned int crc, unsigned int val);
-        bool read_calibration();
-        void print_calibration(void);
-        bool check_sensor();
-        bool check_present();
-        int read_full_color_value(int newClock);
-        void read_sensor();
-        int read_raw_value();
-        uint8_t cal_to_color();
+        void _setClock(int val);
+        void _setData(int val);
+        bool _getData();
+        int _readData();
+        void _sendMode(unsigned int mode);
+        char _readByte();
+        unsigned int _calcCRC(unsigned int crc, unsigned int val);
+        bool _readCalibration();
+        bool _checkSensor();
+        int _readFullColorValue(int newClock);
+        void _readSensor();
+        int _readRawValue();
+        uint8_t _calToColor();
 
-        void begin(void);
-        void begin(uint8_t);
-        void reset_sensor();
-        void update();
-        int calibrate();
-        uint8_t get_color();
-        void print_color(uint8_t);
-        void set_lamp(uint8_t);
-
-    private:
-
+        void _resetSensor();
+        void _update();
+        int _calibrate();
 };
 
 #endif
