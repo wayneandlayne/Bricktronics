@@ -22,9 +22,9 @@ Ultrasonic::Ultrasonic(const SensorSettings &settings):
     _sclPin(settings.DA),
     _sdaPin(settings.DB),
     _i2c(),
-    _pinMode(&::pinMode),
-    _digitalWrite(&::digitalWrite),
-    _digitalRead(&::digitalRead)
+    _pinMode(settings.pinMode),
+    _digitalWrite(settings.digitalWrite),
+    _digitalRead(settings.digitalRead)
 {
     // Nothing to do here
 }
@@ -62,7 +62,7 @@ uint8_t Ultrasonic::readBytes(uint8_t startAddress, uint8_t numBytes, uint8_t *b
 
     for (uint8_t i = 0; i < numBytes - 1; i++)
     {
-        bufifer[i] = _i2c.read(false); // Read, and then send ack
+        buffer[i] = _i2c.read(false); // Read, and then send ack
     }
     buffer[numBytes - 1] = _i2c.read(true); // Read the last byte, then send nak
 
@@ -90,7 +90,7 @@ bool Ultrasonic::writeBytes(uint8_t startAddress,
         return false;
     }
 
-    if (!_i2c.write(startAddres))
+    if (!_i2c.write(startAddress))
     {
         return false;
     }

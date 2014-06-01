@@ -1,21 +1,42 @@
+/*
+    Bricktronics Library for LEGO NXT Color sensors.
+    Copyright (C) 2014 Adam Wolf, Matthew Beckler, John Baichtal
+
+    The contents of this file are subject to the Mozilla Public License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
+    Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
+
+    The Original Code is from leJos.
+
+    The Initial Developer of the Original Code is leJos. All Rights Reserved.
+
+    Contributor(s): Adam Wolf, Matthew Beckler, John Baichtal.
+
+    Most of the stuff here is original to Wayne and Layne, but one or two functions are straight from leJos, an open source alternative firmware for the NXT.
+
+    Wayne and Layne, LLC and our products are not connected to or endorsed by the LEGO Group.
+    LEGO, Mindstorms, and NXT are trademarks of the LEGO Group.
+*/
+
 #include "ColorSensor.h"
 
-ColorSensor::ColorSensor(Bricktronics* b, uint8_t port)
+ColorSensor::ColorSensor(uint8_t clockPin, uint8_t dataPin):
+    _clockPin(clockPin),
+    _dataPin(dataPin),
+    _pinMode(&::pinMode),
+    _digitalWrite(&::digitalWrite),
+    _digitalRead(&::digitalRead)
 {
-    brick = b;
+    // Nothing to do here
+}
 
-    //TODO: do this a better way
-    switch (port)
-    {
-        case 3:
-            _clock = S3_DA;
-            _data = S3_ANA;
-            break;
-        case 4:
-            _clock = S4_DA;
-            _data = S4_ANA;
-            break;
-    }
+ColorSensor::ColorSensor(const SensorSettings &settings):
+    _clockPin(settings.DA),
+    _dataPin(settings.ANA),
+    _pinMode(settings.pinMode),
+    _digitalWrite(settings.digitalWrite),
+    _digitalRead(settings.digitalRead)
+{
+    // Nothing to do here
 }
 
 void ColorSensor::begin(void)
@@ -23,242 +44,32 @@ void ColorSensor::begin(void)
     begin(TYPE_COLORFULL);
 }
 
-void ColorSensor::begin(uint8_t modetype)
+void ColorSensor::begin(uint8_t modeType)
 {
-    mode = modetype;
-    type = modetype;
+    _type = modeType;
 
-    reset_sensor();
-    send_mode(mode);
+    _resetSensor();
+    _sendMode(_type);
     delayMicroseconds(3200);
-    read_calibration();
-    delay(120); //This can be removed if you have other setup code that doesn't use the color sensor that takes a while.
+    _readCalibration();
+
+    // This delay can be removed if you have other setup code
+    // (that doesn't use the color sensor) that takes a while.
+    // Basically you can't get useful data out of the sensor
+    // until at least 120ms has passed since you did the init.
+    delay(120);
 }
 
-
-void ColorSensor::set_clock(int val)
+uint8_t ColorSensor::getColor()
 {
-    pinMode(_clock, OUTPUT);
-    digitalWriteFast2(_clock, val);
+    _readSensor();
+    _calibrate();
+    return _calToColor();
 }
 
-void ColorSensor::set_data(int val)
+void ColorSensor::printColor(uint8_t color)
 {
-    pinMode(_data, OUTPUT);
-    digitalWriteFast2(_data, val);
-}
-
-bool ColorSensor::get_data()
-{
-    pinMode(_data, INPUT);
-    int data = digitalReadFast2(_data) != 0;
-    return data;
-}
-
-int ColorSensor::read_data()
-{
-    pinMode(_data, INPUT);
-    digitalWriteFast2(_data, LOW);
-    int data = analogRead(_data);
-    return data*50/33;
-}
-
-void ColorSensor::reset_sensor()
-{
-    set_clock(1);
-    set_data(1);
-    delay(1);
-    set_clock(0);
-    delay(1);
-    set_clock(1);
-    delay(1);
-    set_clock(0);
-    delay(100);
-}
-
-void ColorSensor::send_mode(unsigned int mode)
-{
-    for (int i = 0; i < 8; i++)
-    {
-        set_clock(1);
-        set_data(mode & 1);
-        delayMicroseconds(30);
-        set_clock(0);
-        mode >>= 1;
-        delayMicroseconds(30);
-    }
-}
-
-char ColorSensor::read_byte()
-{
-    //This is way slower than how LEGO does it... tens of microseconds slower!  When I tested this matching the speed the LEGO does it, I had some issues.  Look into this.
-    unsigned char val = 0;
-    for (int i = 0; i< 8; i++)
-    {
-        set_clock(1);
-        val >>= 1;
-        if (get_data())
-        {
-            val |= 0x80;
-        }
-        set_clock(0);
-    }
-    return val;
-}
-
-unsigned int ColorSensor::calc_CRC(unsigned int crc, unsigned int val)
-{
-    for (int i = 0; i < 8; i++)
-    {
-        if (((val ^ crc) & 1) != 0)
-        {
-            crc = ((crc >> 1) ^ 0xa001); // the >> should shift a zero in
-        }
-        else
-        {
-            crc >>= 1; //the >> should shift a zero in
-        }
-        val >>= 1; //the >> should shift a zero in
-    }
-    return crc & 0xffff;
-}
-
-bool ColorSensor::read_calibration()
-{
-    uint16_t crcVal = 0x5aa5;
-    uint8_t input;
-    pinMode(_data, INPUT);
-    for (int i = 0; i < CAL_ROWS; i++)
-    {
-        for (int col = 0; col < CAL_COLUMNS; col++)
-        {
-            uint32_t val = 0;
-            uint8_t shift_val = 0;
-            for (int k = 0; k < 4; k++)
-            {
-                input = read_byte();
-                crcVal = calc_CRC(crcVal, input);
-                val |= ((uint32_t) input << shift_val);
-                shift_val += 8;
-            }
-            calData[i][col] = val;
-        }
-    }
-    for (int i = 0; i < CAL_LIMITS; i++)
-    {
-        unsigned long val = 0;
-        int shift = 0;
-        for (int k = 0; k < 2; k++)
-        {
-            input = read_byte();
-            crcVal = calc_CRC(crcVal, input);
-            val |= input << shift;
-            shift += 8;
-        }
-
-        calLimits[i] = val;
-    }
-    unsigned int crc = (read_byte() << 8);
-    crc += read_byte();
-    crc &= 0xffff;
-    delay(2);
-    return true;
-}
-
-bool ColorSensor::check_sensor()
-{
-    pinMode(_clock, INPUT);
-    delay(2);
-    if (digitalRead(_clock))
-    {
-        return false; //error
-    }
-    else
-    {
-        return true; //not error
-    }
-}
-
-int ColorSensor::read_full_color_value(int newClock)
-{
-    delayMicroseconds(10);
-    int val = read_data();
-    int val2 = read_data();
-    set_clock(newClock);
-    return (val+val2)/2;
-}
-
-
-void ColorSensor::read_sensor()
-{
-    if (type == TYPE_COLORFULL)
-    {
-        raw_values[INDEX_BLANK] = read_full_color_value(1);
-        raw_values[INDEX_RED] = read_full_color_value(0);
-        raw_values[INDEX_GREEN] = read_full_color_value(1);
-        raw_values[INDEX_BLUE] = read_full_color_value(0);
-    }
-    else
-    {
-        raw_values[type - TYPE_COLORRED] = read_data();
-    }
-}
-
-int ColorSensor::read_raw_value()
-{
-    if (type < TYPE_COLORRED)
-{
-        return -1;
-}
-    read_sensor();
-    return raw_values[type - TYPE_COLORRED];
-}
-
-int ColorSensor::calibrate()
-//calibrate raw_values to cal_values
-{
-    int cal_tab;
-    int blank_val = raw_values[INDEX_BLANK];
-    if (blank_val < calLimits[1])
-    {
-        cal_tab = 2;
-    } else if (blank_val < calLimits[0])
-    {
-        cal_tab = 1;
-    } else
-    {
-        cal_tab = 0;
-    }
-
-    for (int col = INDEX_RED; col <= INDEX_BLUE; col++)
-    {
-        if (raw_values[col] > blank_val)
-        {
-            cal_values[col] = ((raw_values[col] - blank_val) * calData[cal_tab][col]) >> 16; // TODO check shift!
-        } else
-        {
-            cal_values[col] = 0;
-        }
-    }
-        
-    if (blank_val > MINBLANKVAL)
-    {
-        blank_val -= MINBLANKVAL;
-    }
-    else
-    {
-        blank_val = 0;
-    }
-
-    blank_val = (blank_val * 100) / (((SENSORMAX - MINBLANKVAL ) * 100) / ADMAX);
-
-    cal_values[INDEX_BLANK] = (blank_val * calData[cal_tab][INDEX_BLANK]) >> 16 ; // TODO CHECK SHIFT
-    
-}
-
-void ColorSensor::print_color(uint8_t color)
-{
-    //TODO: use PROGMEM for these strings
+    // TODO: use PROGMEM for these strings
     switch (color)
     {
         case COLOR_BLACK:
@@ -284,13 +95,237 @@ void ColorSensor::print_color(uint8_t color)
     }
 }
 
-
-uint8_t ColorSensor::cal_to_color()
+void ColorSensor::_setClock(uint8_t val)
 {
-    int red = cal_values[INDEX_RED];
-    int blue = cal_values[INDEX_BLUE];
-    int green = cal_values[INDEX_GREEN];
-    int blank = cal_values[INDEX_BLANK];
+    _pinMode(_clockPin, OUTPUT);
+    digitalWriteFast2(_clockPin, val);
+}
+
+void ColorSensor::_setData(uint8_t val)
+{
+    _pinMode(_dataPin, OUTPUT);
+    digitalWriteFast2(_dataPin, val);
+}
+
+bool ColorSensor::_getData()
+{
+    _pinMode(_dataPin, INPUT);
+    return ( digitalReadFast2(_dataPin) != 0 );
+}
+
+int ColorSensor::_readData()
+{
+    _pinMode(_dataPin, INPUT);
+    digitalWriteFast2(_dataPin, LOW);
+    return analogRead(_dataPin) * 50/33; // TODO add () to avoid ambiguity
+}
+
+void ColorSensor::_resetSensor()
+{
+    _setClock(1);
+    _setData(1);
+    delay(1);
+    _setClock(0);
+    delay(1);
+    _setClock(1);
+    delay(1);
+    _setClock(0);
+    delay(100);
+}
+
+void ColorSensor::_sendMode(uint8_t mode)
+{
+    for (uint8_t i = 0; i < 8; i++)
+    {
+        _setClock(1);
+        _setData(mode & 1);
+        delayMicroseconds(30);
+        _setClock(0);
+        mode >>= 1;
+        delayMicroseconds(30);
+    }
+}
+
+uint8_t ColorSensor::_readByte()
+{
+    // This is way slower than how LEGO does it... tens of microseconds slower!
+    // When I tested this (matching the speed the LEGO does it) I had some issues.
+    // TODO look into this
+    uint8_t val = 0;
+    for (uint8_t i = 0; i < 8; i++)
+    {
+        _setClock(1);
+        val >>= 1;
+        if (_getData())
+        {
+            val |= 0x80;
+        }
+        _setClock(0);
+    }
+    return val;
+}
+
+uint16_t ColorSensor::_calcCRC(uint16_t crc, uint16_t val)
+{
+    for (uint8_t i = 0; i < 8; i++)
+    {
+        if (((val ^ crc) & 1) != 0)
+        {
+            crc = ((crc >> 1) ^ 0xA001);
+        }
+        else
+        {
+            crc >>= 1;
+        }
+        val >>= 1;
+    }
+    return ( crc & 0xFFFF );
+}
+
+bool ColorSensor::_readCalibration()
+{
+    uint16_t crcVal = 0x5AA5;
+    uint8_t input;
+    _pinMode(_dataPin, INPUT);
+    for (uint8_t row = 0; row < CAL_ROWS; row++)
+    {
+        for (uint8_t col = 0; col < CAL_COLUMNS; col++)
+        {
+            uint32_t val = 0;
+            uint8_t shift = 0;
+            for (uint8_t k = 0; k < 4; k++)
+            {
+                input = _readByte();
+                crcVal = _calcCRC(crcVal, input);
+                val |= ((uint32_t) input << shift);
+                shift += 8;
+            }
+            _calData[row][col] = val;
+        }
+    }
+    for (uint8_t i = 0; i < CAL_LIMITS; i++)
+    {
+        uint32_t val = 0;
+        uint8_t shift = 0;
+        for (uint8_t k = 0; k < 2; k++)
+        {
+            input = _readByte();
+            crcVal = _calcCRC(crcVal, input);
+            val |= ((uint32_t) input << shift);
+            shift += 8;
+        }
+        _calLimits[i] = val;
+    }
+    uint16_t crc = (_readByte() << 8);
+    crc += _readByte();
+    crc &= 0xffff;
+    // TODO what is crc used for?
+    delay(2);
+
+    return true;
+}
+
+bool ColorSensor::_checkSensor()
+{
+    _pinMode(_clockPin, INPUT);
+    delay(2);
+    if (_digitalRead(_clockPin))
+    {
+        return false; // error
+    }
+    else
+    {
+        return true; // not error
+    }
+}
+
+int ColorSensor::_readFullColorValue(uint8_t newClock)
+{
+    delayMicroseconds(10);
+    int val = _readData();
+    int val2 = _readData();
+    _setClock(newClock);
+    return (val + val2) >> 1; // divide by 2
+}
+
+
+void ColorSensor::_readSensor()
+{
+    if (_type == TYPE_COLORFULL)
+    {
+        _rawValues[INDEX_BLANK]  = _readFullColorValue(1);
+        _rawValues[INDEX_RED]    = _readFullColorValue(0);
+        _rawValues[INDEX_GREEN]  = _readFullColorValue(1);
+        _rawValues[INDEX_BLUE]   = _readFullColorValue(0);
+    }
+    else
+    {
+        _rawValues[_type - TYPE_COLORRED] = _readData();
+    }
+}
+
+int ColorSensor::_readRawValue()
+{
+    if (_type < TYPE_COLORRED)
+    {
+        return -1;
+    }
+    _readSensor();
+    return _rawValues[_type - TYPE_COLORRED];
+}
+
+// calibrate rawValues to calValues
+int ColorSensor::_calibrate()
+{
+    uint8_t calTab;
+    int blankVal = _rawValues[INDEX_BLANK];
+    if (blankVal < _calLimits[1])
+    {
+        calTab = 2;
+    }
+    else if (blankVal < _calLimits[0])
+    {
+        calTab = 1;
+    }
+    else
+    {
+        calTab = 0;
+    }
+
+    for (uint8_t col = INDEX_RED; col <= INDEX_BLUE; col++)
+    {
+        if (_rawValues[col] > blankVal)
+        {
+            _calValues[col] = ((_rawValues[col] - blankVal) * _calData[calTab][col]) >> 16;
+            // TODO check shift!
+        }
+        else
+        {
+            _calValues[col] = 0;
+        }
+    }
+        
+    if (blankVal > MINBLANKVAL)
+    {
+        blankVal -= MINBLANKVAL;
+    }
+    else
+    {
+        blankVal = 0;
+    }
+
+    blankVal = (blankVal * 100) / (((SENSORMAX - MINBLANKVAL ) * 100) / ADMAX);
+
+    _calValues[INDEX_BLANK] = (blankVal * _calData[calTab][INDEX_BLANK]) >> 16 ;
+    // TODO CHECK SHIFT
+}
+
+uint8_t ColorSensor::_calToColor()
+{
+    uint16_t red     = _calValues[INDEX_RED];
+    uint16_t blue    = _calValues[INDEX_BLUE];
+    uint16_t green   = _calValues[INDEX_GREEN];
+    uint16_t blank   = _calValues[INDEX_BLANK];
 
     // The following algorithm comes from the 1.29 Lego firmware.
     if (red > blue && red > green)
@@ -334,10 +369,4 @@ uint8_t ColorSensor::cal_to_color()
     }
 }
 
-uint8_t ColorSensor::get_color()
-{
-    read_sensor();
-    calibrate();
-    return cal_to_color();
-}
 

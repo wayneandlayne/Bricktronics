@@ -27,6 +27,7 @@
 #define COLOR_RED           5
 #define COLOR_WHITE         6
 
+// Don't re-order these, they are used as loop indices
 #define INDEX_RED           0
 #define INDEX_GREEN         1
 #define INDEX_BLUE          2
@@ -78,29 +79,29 @@ class ColorSensor
     //private:
         // We really don't like to hide things inside private,
         // but if we did, these would be the private items.
-        unsigned long calData[CAL_ROWS][CAL_COLUMNS];
 
-        long _calLimits[CAL_LIMITS];
+        uint32_t _calData[CAL_ROWS][CAL_COLUMNS];
+
+        int32_t _calLimits[CAL_LIMITS];
 
         uint16_t _rawValues[4];
         uint16_t _calValues[4];
 
-        uint16_t _mode;
         uint16_t _type;
 
         uint8_t _clockPin;
         uint8_t _dataPin;
 
-        void _setClock(int val);
-        void _setData(int val);
+        void _setClock(uint8_t val);
+        void _setData(uint8_t val);
         bool _getData();
         int _readData();
-        void _sendMode(unsigned int mode);
-        char _readByte();
+        void _sendMode(uint8_t mode);
+        uint8_t _readByte();
         unsigned int _calcCRC(unsigned int crc, unsigned int val);
         bool _readCalibration();
         bool _checkSensor();
-        int _readFullColorValue(int newClock);
+        int _readFullColorValue(uint8_t newClock);
         void _readSensor();
         int _readRawValue();
         uint8_t _calToColor();
@@ -108,6 +109,15 @@ class ColorSensor
         void _resetSensor();
         void _update();
         int _calibrate();
+
+        // For the Bricktronics Shield, which has an I2C I/O expander chip,
+        // we need a way to override some common Arduino functions. We use
+        // function pointers here to handle this. For the non-Bricktronics
+        // Shield cases, the simple constructor above provides the built-in
+        // functions.
+        void (*_pinMode)(uint8_t, uint8_t);
+        void (*_digitalWrite)(uint8_t, uint8_t);
+        int (*_digitalRead)(uint8_t);
 };
 
 #endif
