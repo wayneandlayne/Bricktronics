@@ -1,6 +1,5 @@
 /*
-    Motor Driver for Arduino
-    This is the version for use with the Bricktronics Motor Driver board.
+    Bricktronics library for LEGO NXT motors.
     Copyright (C) 2014 Adam Wolf, Matthew Beckler, John Baichtal
 
     This program is free software; you can redistribute it and/or
@@ -16,6 +15,9 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+    Wayne and Layne, LLC and our products are not connected to or endorsed by the LEGO Group.
+    LEGO, Mindstorms, and NXT are trademarks of the LEGO Group.
 */
 
 #include "Motor.h"

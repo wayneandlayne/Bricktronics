@@ -1,39 +1,43 @@
 /*
-Combined Bricktronics Library
-For Bricktronics Shield, Bricktronics Megashield, and Bricktronics Motor Driver.
-Copyright (C) 2014 Adam Wolf, Matthew Beckler, John Baichtal
+    Combined Bricktronics Library for Bricktronics Shield,
+    Bricktronics Megashield, Bricktronics Motor Driver, and
+    all future Bricktronics designs.
+    Copyright (C) 2014 Adam Wolf, Matthew Beckler, John Baichtal
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either version 2
+    of the License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+    Wayne and Layne, LLC and our products are not connected to or endorsed by the LEGO Group.
+    LEGO, Mindstorms, and NXT are trademarks of the LEGO Group.
 */
 
 #ifndef BRICKTRONICS_H
 #define BRICKTRONICS_H
 
+// Arduino header files
+#include <inttypes.h>
 #if ARDUINO >= 100
 #include "Arduino.h"
 #else
 #include "WProgram.h"
 #endif
+#include <Wire.h> // TODO it seems like we have to include this in the top-level sketch too?!
 
-// We need the definitions of the motor and sensor setting structs
-#include "Motor.h"
-#include "Sensors.h"
-
-#include <Wire.h> // TODO it seems like we have to include this in the top-level sketch too?! (v1.5 at least)
+// Library header files
+#include "Settings.h"
 #include "utility/Adafruit_MCP23017.h"
-#include "utility/digitalWriteFast.h" // TODO only used for one type of sensor? Can we remove from here?
+//#include "utility/digitalWriteFast.h" // TODO only used for one type of sensor? Can we remove from here?
 
 // Pins above 64 are assigned to the IO expander pins.
 // We can just mask away upper bits to "subtract 64" in that case.

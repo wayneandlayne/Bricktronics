@@ -6,7 +6,6 @@
     Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the specific language governing rights and limitations under the License.
 
     The Original Code is from leJos.
-
     The Initial Developer of the Original Code is leJos. All Rights Reserved.
 
     Contributor(s): Adam Wolf, Matthew Beckler, John Baichtal.
@@ -20,6 +19,20 @@
 #ifndef COLORSENSOR_H
 #define COLORSENSOR_H
 
+// Arduino header files
+#include <inttypes.h>
+#if ARDUINO >= 100
+#include "Arduino.h"
+#else
+#include "WProgram.h"
+#endif
+
+// Library header files
+#include "Settings.h"
+#include "utility/digitalWriteFast.h"
+
+
+// TODO someday prefix all the defines with CS or COLORSENSOR
 #define COLOR_BLACK         1
 #define COLOR_BLUE          2
 #define COLOR_GREEN         3
@@ -47,8 +60,6 @@
 #define CAL_COLUMNS         4
 #define CAL_ROWS            3
 #define CAL_LIMITS          2
-
-#include "Bricktronics.h"
 
 class ColorSensor
 {
@@ -107,8 +118,7 @@ class ColorSensor
         uint8_t _calToColor();
 
         void _resetSensor();
-        void _update();
-        int _calibrate();
+        void _calibrate();
 
         // For the Bricktronics Shield, which has an I2C I/O expander chip,
         // we need a way to override some common Arduino functions. We use

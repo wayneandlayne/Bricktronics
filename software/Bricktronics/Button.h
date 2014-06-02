@@ -1,5 +1,5 @@
 /* 
-    Bricktronics Library for LEGO NXT Pushbutton sensors.
+    Bricktronics library for LEGO NXT Pushbutton sensors.
     Copyright (C) 2014 Adam Wolf, Matthew Beckler, John Baichtal
 
     This program is free software; you can redistribute it and/or
@@ -23,15 +23,17 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
-#include "Sensors.h"
-
-// Need this for the functions line pinMode, digitalRead, etc
-// TODO is this still true?
+// Arduino header files
+#include <inttypes.h>
 #if ARDUINO >= 100
 #include "Arduino.h"
 #else
 #include "WProgram.h"
 #endif
+
+// Library header files
+#include "Settings.h"
+
 
 class Button
 {

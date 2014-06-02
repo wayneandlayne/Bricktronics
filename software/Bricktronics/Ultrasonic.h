@@ -23,15 +23,16 @@
 #ifndef ULTRASONIC_H
 #define ULTRASONIC_H
 
-// Need this for the functions line pinMode, digitalRead, etc
-// TODO is this still true?
+// Arduino header files
+#include <inttypes.h>
 #if ARDUINO >= 100
 #include "Arduino.h"
 #else
 #include "WProgram.h"
 #endif
 
-#include "Sensors.h"
+// Library header files
+#include "Settings.h"
 #include "utility/SoftI2cMaster.h"
 
 
@@ -62,11 +63,13 @@ class Ultrasonic
         // Starts up the sensor
         void begin(void);
 
+        // This is the main API call to get the current distance reading
+        uint8_t getDistance(void);
+
+        // These might return interesting data
         char* getProductID();
         char* getVersion();
         char* getSensorType();
-
-        uint8_t getDistance(void);
 
     //private:
         // We really don't like to hide things inside private,
@@ -79,7 +82,6 @@ class Ultrasonic
         // The internal data buffer
         uint8_t _bBuf[ULTRASONIC_BUFF_LEN];
 
-        // TODO are these "private"?
         char* readString(uint8_t startAddress, uint8_t numBytes);
         uint8_t readBytes(uint8_t startAddress, uint8_t numBytes, uint8_t *buffer);
         uint8_t readByte(uint8_t address);

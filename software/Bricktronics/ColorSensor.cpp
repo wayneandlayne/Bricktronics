@@ -1,5 +1,5 @@
 /*
-    Bricktronics Library for LEGO NXT Color sensors.
+    Bricktronics library for LEGO NXT Color sensors.
     Copyright (C) 2014 Adam Wolf, Matthew Beckler, John Baichtal
 
     The contents of this file are subject to the Mozilla Public License Version 1.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
@@ -275,10 +275,10 @@ int ColorSensor::_readRawValue()
 }
 
 // calibrate rawValues to calValues
-int ColorSensor::_calibrate()
+void ColorSensor::_calibrate()
 {
     uint8_t calTab;
-    int blankVal = _rawValues[INDEX_BLANK];
+    uint16_t blankVal = _rawValues[INDEX_BLANK];
     if (blankVal < _calLimits[1])
     {
         calTab = 2;
@@ -314,6 +314,7 @@ int ColorSensor::_calibrate()
         blankVal = 0;
     }
 
+    // TODO check for integer overflow here, might need to cast multiplicand bigger
     blankVal = (blankVal * 100) / (((SENSORMAX - MINBLANKVAL ) * 100) / ADMAX);
 
     _calValues[INDEX_BLANK] = (blankVal * _calData[calTab][INDEX_BLANK]) >> 16 ;

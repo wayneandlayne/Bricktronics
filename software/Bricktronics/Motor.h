@@ -1,5 +1,5 @@
 /*
-    Motor library for LEGO NXT motors.
+    Bricktronics library for LEGO NXT motors.
     Copyright (C) 2014 Adam Wolf, Matthew Beckler, John Baichtal
 
     This program is free software; you can redistribute it and/or
@@ -33,10 +33,15 @@
 #ifndef MOTOR_H
 #define MOTOR_H
 
+// Arduino header files
 #include <inttypes.h>
-#include "utility/Encoder.h"
 
+// Library header files
+#include "Settings.h"
+#include "utility/Encoder.h"
+// TODO should we remove the copy of PID from utilities and make the user install it themselves?
 #include "utility/PID_v1.h"
+
 #define MOTOR_PID_KP                0.8
 #define MOTOR_PID_KI                0.003
 #define MOTOR_PID_KD                1.0
@@ -47,22 +52,6 @@
 // Sample time - Call update() as often as you can, but it will only update
 // as often as this value. Can be updated by the user at runtime if desired.
 #define MOTOR_PID_SAMPLE_TIME_MS    50
-
-// To make it easy to get all the motor settings from the Bricktronics
-// class, we created a struct that contains all our settings, including
-// all five motor pin connections, as well as optional overrides to the
-// low-level Arduino functions.
-typedef struct MotorSettings
-{
-   uint8_t enPin;
-   uint8_t dirPin;
-   uint8_t pwmPin;
-   uint8_t tachPinA;
-   uint8_t tachPinB;
-   void (*pinMode)(uint8_t, uint8_t);
-   void (*digitalWrite)(uint8_t, uint8_t);
-   int (*digitalRead)(uint8_t);
-} MotorSettings;
 
 class Motor
 {
