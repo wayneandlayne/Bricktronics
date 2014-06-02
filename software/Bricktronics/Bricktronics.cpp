@@ -3,8 +3,8 @@
 // Bricktronics Shield motor settings
 const MotorSettings Bricktronics::BS_MOTOR_1 = {
     79, // enPin
-    10, // dirPin
-    78, // pwmPin
+    78, // dirPin
+    10, // pwmPin
     2,  // tachPinA
     5,  // tachPinB
     &Bricktronics::pinMode,
@@ -14,8 +14,8 @@ const MotorSettings Bricktronics::BS_MOTOR_1 = {
 
 const MotorSettings Bricktronics::BS_MOTOR_2 = {
     77, // enPin
-    9,  // dirPin
-    76, // pwmPin
+    76, // dirPin
+    9,  // pwmPin
     3,  // tachPinA
     4,  // tachPinB
     &Bricktronics::pinMode,
