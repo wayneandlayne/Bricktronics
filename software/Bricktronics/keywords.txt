@@ -7,21 +7,52 @@
 #######################################
 
 Bricktronics	KEYWORD1
-Motor	KEYWORD1
-PIDMotor	KEYWORD1
-Button	KEYWORD1
+Motor	        KEYWORD1
+Button	        KEYWORD1
 ColorSensor	KEYWORD1
 Ultrasonic	KEYWORD1
+MotorSettings   KEYWORD1
+SensorSettings  KEYWORD1
 
 
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
 
-begin	KEYWORD2
+begin	        KEYWORD2
+
+# Motor
+enable          KEYWORD2
+disable         KEYWORD2
+stop            KEYWORD2
+getPosition     KEYWORD2
+setPosition     KEYWORD2
+update          KEYWORD2
+setUpdateFrequencyMS KEYWORD2
+
+# Button
+isPressed       KEYWORD2
+isReleased      KEYWORD2
+
+# ColorSensor
+getColor        KEYWORD2
+printColor      KEYWORD2
+
+# Ultrasonic
+getDistance     KEYWORD2
 
 
 #######################################
 # Constants (LITERAL1)
 #######################################
 
+# Motor
+
+# Button
+
+# ColorSensor
+TYPE_COLORFULL  LITERAL1
+TYPE_COLORRED   LITERAL1
+TYPE_COLORGREEN LITERAL1
+TYPE_COLORBLUE  LITERAL1
+TYPE_COLORNONE  LITERAL1
