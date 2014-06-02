@@ -20,10 +20,6 @@
 
 #include "Motor.h"
 
-// Newest plan: Shared Bricktronics library for all platforms (Arduino, ChipKit, Teensy, RasPi, etc).
-// Use functions pointers for the low-level functions (pinMode and digitalWrite).
-// Common encoder library for all supported platforms?
-
 // This is the simplified constructor that allows you to specify only the
 // five motor pins.
 Motor::Motor(uint8_t enPin, uint8_t dirPin, uint8_t pwmPin, uint8_t tachPinA, uint8_t tachPinB):
@@ -115,15 +111,15 @@ void Motor::_rawSetSpeed(int16_t s)
     }
     else if (s < 0)
     {
-        digitalWrite(_dirPin, HIGH);
+        _digitalWrite(_dirPin, HIGH);
         analogWrite(_pwmPin, 255 + s);
-        digitalWrite(_enPin, HIGH);
+        _digitalWrite(_enPin, HIGH);
     }
     else
     {
-        digitalWrite(_dirPin, LOW);
+        _digitalWrite(_dirPin, LOW);
         analogWrite(_pwmPin, s);
-        digitalWrite(_enPin, HIGH);
+        _digitalWrite(_enPin, HIGH);
     }
 }
 

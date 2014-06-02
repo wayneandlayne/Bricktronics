@@ -171,8 +171,7 @@ const SensorSettings Bricktronics::BMS_SENSOR_4 = {
 // This library instance does not belong to any instance of Bricktronics,
 // and is only used by the three Brucktronics member functions below,
 // plus the begin() function.
-Adafruit_MCP23017 mcp;
-// TODO should this belong inside the Bricktronics class as a static member variable?
+Adafruit_MCP23017 Bricktronics::mcp;
 
 
 void Bricktronics::begin()
@@ -205,7 +204,7 @@ void Bricktronics::pinMode(uint8_t pin, uint8_t mode)
         else
         {
             // either INPUT or INPUT_PULLUP
-            mcp.pinMode(pin & BRICKTRONICS_PIN_MASK, INPUT);
+            mcp.pinMode(newPin, INPUT);
             if (mode == INPUT_PULLUP)
             {
                 mcp.pullUp(newPin, HIGH);

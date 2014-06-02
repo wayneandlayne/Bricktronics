@@ -83,6 +83,9 @@ class Bricktronics
         static void pinMode(uint8_t pin, uint8_t mode);
         static void digitalWrite(uint8_t pin, uint8_t level);
         static int digitalRead(uint8_t pin);
+
+    //private:
+        static Adafruit_MCP23017 mcp;
 };
 
 #endif // #ifndef BRICKTRONICS_H
