@@ -30,17 +30,19 @@
 // Select the motor port (BS_MOTOR_1 or BS_MOTOR_2) and sensor port
 // (BS_SENSOR_1 through BS_SENSOR_4) in the constructors below.
 // If your chosen sensor port has jumpers (ports 3 and 4), connect pins 2-3 and 4-5.
+//
 #include <Wire.h>
 #include <Bricktronics.h>
-Motor m = Motor(Bricktronics::BS_MOTOR_2);
+Motor m = Motor(Bricktronics::BS_MOTOR_1);
 Button b = Button(Bricktronics::BS_SENSOR_1);
 
-// 2. With a Bricktronics Megashield - Include these lines below but do not
-// call Bricktronics::being() in the setup() function below.
+// 2. With a Bricktronics Megashield - Include these lines but do not
+// call Bricktronics::begin() in the setup() function below.
 // Select the desired motor port (BMS_MOTOR_1 through BMS_MOTOR_6) and sensor port
 // (BMS_SENSOR_1 through BMS_SENSOR_4) in the constructors below.
 // Connect pins 2-3 and 4-5 on the chosen sensor port.
 // #include <Bricktronics.h>
+//
 //Motor m = Motor(Bricktronics::BMS_MOTOR_1);
 //Button b = Button(Bricktronics::BMS_SENSOR_1);
 
@@ -48,7 +50,7 @@ Button b = Button(Bricktronics::BS_SENSOR_1);
 // just update the pin assignments in the Motor and Button constructors below.
 //
 // The Motor() arguments are: enPin, dirPin, pwmPin, tachPinA, tachPinB
-// A few considerations for pin assignments:
+// There are a few considerations for pin assignments:
 // A. pwmPin needs to be a pin with PWM capabilities (analogWrite)
 // Uno:       pins 3, 5, 6, 9, 10, and 11
 // Mega 2560: pins 2 to 13 and 44 to 46
@@ -58,7 +60,8 @@ Button b = Button(Bricktronics::BS_SENSOR_1);
 // Mega 2560: 2, 3, 21, 20, 19, and 18
 //
 // The Button() argument is simply the pin the button is connected to, that is, wherever
-// pin 1 of the Breakout board is connected. No worries about PWM or interrupt pins here.
+// pin 1 of the Breakout board is connected (also connect the grounds).
+// No worries about PWM or interrupt pins here.
 //
 //Motor m = Motor(3, 4, 10, 2, 5);
 //Button b = Button(7);
@@ -78,23 +81,27 @@ int theSpeed = 255;
 
 void loop()
 {
-    m._rawSetSpeed(theSpeed);
-    
-    while (b.isReleased())
-    {
-      // Nothing to do here
-    }
-    // to get here, the button was pushed!
-    m.stop();
-    // in order to debounce the button, we wait a little bit here
-    delay(100);
-    
-    // we want to wait until the button is released to go backwards.
-    while (b.isPressed())
-    {
-      // Nothing to do here
-    }
-    delay(100);
-    theSpeed *= -1; // reverse directions
+  m._rawSetSpeed(theSpeed);
+  
+  // Wait until the button is pressed
+  while (b.isReleased())
+  {
+    // Nothing to do here
+  }
+  // To get here, the button was pushed!
+
+  // Stop the motor while the button is held down
+  m.stop();
+
+  // In order to debounce the button, we wait a little bit here
+  delay(100);
+  
+  // Wait until the button is released
+  while (b.isPressed())
+  {
+    // Nothing to do here
+  }
+  delay(100);
+  theSpeed *= -1; // reverse directions
 }
 

@@ -38,7 +38,7 @@ Motor m = Motor(Bricktronics::BS_MOTOR_1);
 // 3. With a Bricktronics Motor Driver - No additional #includes needed,
 // just update the five pin assignments in the constructor below.
 // The arguments are: enPin, dirPin, pwmPin, tachPinA, tachPinB
-// A few considerations for pin assignments:
+// There are a few considerations for pin assignments:
 // A. pwmPin needs to be a pin with PWM capabilities (analogWrite)
 // Uno:       pins 3, 5, 6, 9, 10, and 11
 // Mega 2560: pins 2 to 13 and 44 to 46
