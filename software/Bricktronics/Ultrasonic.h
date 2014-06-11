@@ -53,7 +53,7 @@
 class Ultrasonic
 {
     public:
-        // Constructor - Simple constructor accepts the SDA and SCL pins
+        // Constructor - Simple constructor accepts the SCL and SDA pins
         Ultrasonic(uint8_t sclPin, uint8_t sdaPin);
 
         // Constructor - Advanced constructor accepts a SensorSettings
@@ -82,6 +82,7 @@ class Ultrasonic
         // The internal data buffer
         uint8_t _bBuf[ULTRASONIC_BUFF_LEN];
 
+        // TODO are these really "private"? If so, make prefix them with _?
         char* readString(uint8_t startAddress, uint8_t numBytes);
         uint8_t readBytes(uint8_t startAddress, uint8_t numBytes, uint8_t *buffer);
         uint8_t readByte(uint8_t address);
