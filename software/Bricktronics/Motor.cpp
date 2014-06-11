@@ -97,60 +97,76 @@ void Motor::disable(void)
 
 void Motor::stop(void)
 {
-    _digitalWrite(_enPin, LOW);
-    _digitalWrite(_dirPin, LOW);
-    _digitalWrite(_pwmPin, LOW);
+  _digitalWrite(_enPin, LOW);
+  _digitalWrite(_dirPin, LOW);
+  _digitalWrite(_pwmPin, LOW);
 }
 
 
 // RAW UNCONTROLLED SPEED FUNCTION
 void Motor::rawSetSpeed(int16_t s)
 {
-    _rawSpeed = s;
-    if (s == 0)
-    {
-        stop();
-    }
-    else if (s < 0)
-    {
-        _digitalWrite(_dirPin, HIGH);
-        analogWrite(_pwmPin, 255 + s);
-        _digitalWrite(_enPin, HIGH);
-    }
-    else
-    {
-        _digitalWrite(_dirPin, LOW);
-        analogWrite(_pwmPin, s);
-        _digitalWrite(_enPin, HIGH);
-    }
+  _rawSpeed = s;
+  if (s == 0)
+  {
+    stop();
+  }
+  else if (s < 0)
+  {
+    _digitalWrite(_dirPin, HIGH);
+    analogWrite(_pwmPin, 255 + s);
+    _digitalWrite(_enPin, HIGH);
+  }
+  else
+  {
+    _digitalWrite(_dirPin, LOW);
+    analogWrite(_pwmPin, s);
+    _digitalWrite(_enPin, HIGH);
+  }
 }
 
+
+void goToPosition(int16_t position)
+{
+  // Swith our internal PID into position mode
+  _pidMode = MOTOR_PID_MODE_POSITION;
+  _pidSetpoint = position;
+}
+
+void goToPositionWait(int16_t position)
+{
+  // TODO
+}
+
+bool goToPositionWaitTimeout(int16_t position, uint16_t timeoutMS)
+{
+  // TODO
+}
 
 
 
 void Motor::update(void)
 {
-   switch (_pidMode)
-   {
-      case MOTOR_PID_MODE_POSITION:
-         _pidInput = _encoder.read();
-         _pid.Compute();
-         _rawSetSpeed(_pidOutput);
-         break;
+  switch (_pidMode)
+  {
+    case MOTOR_PID_MODE_POSITION:
+      _pidInput = _encoder.read();
+      _pid.Compute();
+      rawSetSpeed(_pidOutput);
+      break;
 
-      case MOTOR_PID_MODE_SPEED:
-         // TODO how can we determine the current speed if this is being called frequently
+    case MOTOR_PID_MODE_SPEED:
+      // TODO how can we determine the current speed if this is being called frequently
+      break;
 
-         break;
-
-      default: // includes MOTOR_PID_MODE_DISABLED
-         break;
-   }
+    default: // includes MOTOR_PID_MODE_DISABLED
+      break;
+  }
 }
 
 void Motor::setUpdateFrequencyMS(int timeMS)
 {
-   _pid.SetSampleTime(timeMS);
+  _pid.SetSampleTime(timeMS);
 }
 
 

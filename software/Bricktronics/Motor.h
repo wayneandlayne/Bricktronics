@@ -109,14 +109,16 @@ class Motor
         
 
         // Position control functions
-        // TODO
-        // gotoPositionWait(position);
-        // gotoPositionWaitTimeout(position);
-        // Go to position, non-blocking?
+        void goToPosition(int16_t position);
+        void gotoPositionWait(int16_t position);
+        void gotoPositionWaitTimeout(int16_t position, uint16_t timeoutMS);
 
         // Angle control functions - 0 - 359, handles discontinuity nicely
-        // Go to angle, blocking?
-        // Go to position, non-blocking?
+        // TODO what should the input be? Handle negative numbers?
+        // What is the permissible input range? -360 to +360 degrees?
+        //void goToAngle(int16_t angle);
+        //void gotoAngleWait(int16_t angle);
+        //void gotoAngleWaitTimeout(int16_t angle, uint16_t timeoutMS);
 
 
     //private:
