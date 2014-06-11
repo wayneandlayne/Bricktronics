@@ -1,10 +1,10 @@
-// Bricktronics Example: SingleMotor
+// Bricktronics Example: MotorSingle
 // http://www.wayneandlayne.com/bricktronics
 // This example uses a LEGO NXT Motor.
-
+//
 // This example starts the motor at an intermediate speed,
 // then speeds it up to full speed, and does the same in reverse.
-
+//
 // This example uses a motor, so it needs more power than a USB port can give.
 // We really don't recommend running motors off of USB ports (they will be
 // slow and sluggish, other things won't quite work right, things can get hot)
@@ -25,6 +25,7 @@
 // 1. With a Bricktronics Shield - Include these lines and be sure to
 // call Bricktronics::begin() in the setup() function below. Select the
 // motor port (BS_MOTOR_1 or BS_MOTOR_2) in the constructor below.
+//
 #include <Wire.h>
 #include <Bricktronics.h>
 Motor m = Motor(Bricktronics::BS_MOTOR_1);
@@ -32,6 +33,7 @@ Motor m = Motor(Bricktronics::BS_MOTOR_1);
 // 2. With a Bricktronics Megashield - Include these lines below but do not
 // call Bricktronics::being() in the setup() function below. Select the
 // desired motor port (BMS_MOTOR_1 through BMS_MOTOR_6) in the constructor below.
+//
 // #include <Bricktronics.h>
 //Motor m = Motor(Bricktronics::BMS_MOTOR_1);
 
@@ -46,7 +48,9 @@ Motor m = Motor(Bricktronics::BS_MOTOR_1);
 // a "pin change interrupt" pin).
 // Uno:       pins 2 and 3
 // Mega 2560: 2, 3, 21, 20, 19, and 18
+//
 //Motor m = Motor(3, 4, 10, 2, 5);
+
 
 void setup()
 {
@@ -61,17 +65,17 @@ void setup()
 void loop() 
 {
   Serial.println("Going forward.");
-  m._rawSetSpeed(75);
+  m.rawSetSpeed(75);
   delay(1000);
   
-  m._rawSetSpeed(255);
+  m.rawSetSpeed(255);
   delay(1000);
 
   Serial.println("Going in reverse.");
-  m._rawSetSpeed(-75);
+  m.rawSetSpeed(-75);
   delay(1000);
   
-  m._rawSetSpeed(-255);
+  m.rawSetSpeed(-255);
   delay(1000);
 }
 

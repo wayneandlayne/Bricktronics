@@ -96,6 +96,12 @@ class Motor
         void setUpdateFrequencyMS(int timeMS);
 
 
+        // Raw, uncontroleld speed settings
+        // There is no control of the speed here,
+        // just set a value between -255 and +255 (0 = stop).
+        void rawSetSpeed(int16_t s);
+
+
         // Speed control functions
         // The driver will monitor and try to adjust the drive duty cycle
         // to keep the actual speed close to the setpoint.
@@ -103,6 +109,7 @@ class Motor
         
 
         // Position control functions
+        // TODO
         // gotoPositionWait(position);
         // gotoPositionWaitTimeout(position);
         // Go to position, non-blocking?
@@ -130,19 +137,12 @@ class Motor
         // Tracks the position of the motor
         Encoder _encoder;
 
-
-        // Raw, uncontroleld speed settings
-        // There is no control of the speed here,
-        // just set a value between -255 and +255 (0 = stop).
-        void _rawSetSpeed(int16_t s);
-
         // For the Bricktronics Shield, which has an I2C I/O expander chip, we need a way to
         // override some common Arduino functions. We use function pointers here to handle this.
         // For the non-Bricktronics Shield cases, the simple constructor above provides the built-in functions.
         void (*_pinMode)(uint8_t, uint8_t);
         void (*_digitalWrite)(uint8_t, uint8_t);
         int (*_digitalRead)(uint8_t);
-
 };
 
 #endif

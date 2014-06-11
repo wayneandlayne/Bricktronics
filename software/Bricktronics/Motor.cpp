@@ -104,7 +104,7 @@ void Motor::stop(void)
 
 
 // RAW UNCONTROLLED SPEED FUNCTION
-void Motor::_rawSetSpeed(int16_t s)
+void Motor::rawSetSpeed(int16_t s)
 {
     _rawSpeed = s;
     if (s == 0)
