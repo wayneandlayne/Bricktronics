@@ -82,7 +82,7 @@ int theSpeed = 255;
 
 void loop()
 {
-  m._rawSetSpeed(theSpeed);
+  m.rawSetSpeed(theSpeed);
   
   // Wait until the button is pressed
   while (b.isReleased())
@@ -102,7 +102,11 @@ void loop()
   {
     // Nothing to do here
   }
+
+  // In order to debounce the button, we wait a little bit here
   delay(100);
-  theSpeed *= -1; // reverse directions
+
+  // Reverse direction
+  theSpeed *= -1;
 }
 
