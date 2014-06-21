@@ -126,23 +126,12 @@ void Motor::rawSetSpeed(int16_t s)
 }
 
 
-void goToPosition(int16_t position)
+void Motor::goToPosition(int16_t position)
 {
   // Swith our internal PID into position mode
   _pidMode = MOTOR_PID_MODE_POSITION;
   _pidSetpoint = position;
 }
-
-void goToPositionWait(int16_t position)
-{
-  // TODO
-}
-
-bool goToPositionWaitTimeout(int16_t position, uint16_t timeoutMS)
-{
-  // TODO
-}
-
 
 
 void Motor::update(void)
