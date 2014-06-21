@@ -55,7 +55,7 @@ void setup()
 
   // Only call this if you are using a Bricktronics Shield,
   // otherwise leave it commented-out.
-  Bricktroincs::begin();
+  Bricktronics::begin();
 
   // Initialize the ultrasonic sensor connections
   u.begin();

@@ -43,9 +43,6 @@ ColorSensor c = ColorSensor(Bricktronics::BS_SENSOR_3);
 
 void setup()
 {
-  // Be sure to set your serial console to 115200 baud.
-  Serial.begin(115200);
-
   // Only call this if you are using a Bricktronics Shield,
   // otherwise leave it commented-out.
   Bricktronics::begin();

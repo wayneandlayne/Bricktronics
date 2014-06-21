@@ -78,7 +78,7 @@ void setup()
   b.begin();
 }
 
-int theSpeed = 255;
+int theSpeed = 150;
 
 void loop()
 {
