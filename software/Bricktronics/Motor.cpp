@@ -30,9 +30,10 @@ Motor::Motor(uint8_t enPin, uint8_t dirPin, uint8_t pwmPin, uint8_t tachPinA, ui
              _pwmPin(pwmPin),
              _enabled(false),
              _rawSpeed(0),
-             _pid(&_pidInput, &_pidOutput, &_pidSetpoint, MOTOR_PID_KP, MOTOR_PID_KI, MOTOR_PID_KD, DIRECT),
+             _pid(&_pidInput, &_pidOutput, &_pidSetpoint, MOTOR_PID_KP, MOTOR_PID_KI, MOTOR_PID_KD, REVERSE),
              _pidMode(MOTOR_PID_MODE_DISABLED),
              _encoder(tachPinA, tachPinB),
+             _angleMultiplier(2),
              _pinMode(&::pinMode),
              _digitalWrite(&::digitalWrite),
              _digitalRead(&::digitalRead)
@@ -49,9 +50,10 @@ Motor::Motor(const MotorSettings &settings):
              _pwmPin(settings.pwmPin),
              _enabled(false),
              _rawSpeed(0),
-             _pid(&_pidInput, &_pidOutput, &_pidSetpoint, MOTOR_PID_KP, MOTOR_PID_KI, MOTOR_PID_KD, DIRECT),
+             _pid(&_pidInput, &_pidOutput, &_pidSetpoint, MOTOR_PID_KP, MOTOR_PID_KI, MOTOR_PID_KD, REVERSE),
              _pidMode(MOTOR_PID_MODE_DISABLED),
              _encoder(settings.tachPinA, settings.tachPinB),
+             _angleMultiplier(2),
              _pinMode(settings.pinMode),
              _digitalWrite(settings.digitalWrite),
              _digitalRead(settings.digitalRead)
@@ -75,6 +77,7 @@ void Motor::setPosition(int32_t pos)
 
 void Motor::begin(void)
 {
+    _pid.SetMode(AUTOMATIC);
     _enabled = true;
     stop();
     _pinMode(_dirPin, OUTPUT);
@@ -126,12 +129,45 @@ void Motor::rawSetSpeed(int16_t s)
 }
 
 
-void Motor::goToPosition(int16_t position)
+void Motor::goToPosition(int32_t position)
 {
   // Swith our internal PID into position mode
   _pidMode = MOTOR_PID_MODE_POSITION;
   _pidSetpoint = position;
 }
+
+
+void Motor::setAngleOutputMultiplier(int8_t multiplier)
+{
+  // Since the LEGO NXT motor encoders have 720 ticks per revolution,
+  // we have to double the user's specified multiplier.
+  _angleMultiplier = multiplier << 1;
+}
+
+void Motor::goToAngle(int32_t angle)
+{
+  int16_t delta = (angle % 360) - getAngle();
+
+  while (delta > 180)
+    delta -= 360;
+  while (delta < -180)
+    delta += 360;
+
+  // Now, delta is between -180 and +180
+
+  goToPosition(getPosition() + (delta * _angleMultiplier));
+}
+
+uint16_t Motor::getAngle(void)
+{
+  return ( (getPosition() / _angleMultiplier) % 360 );
+}
+
+void Motor::setAngle(int32_t angle)
+{
+  setPosition((angle % 360) * _angleMultiplier);
+}
+
 
 
 void Motor::update(void)
@@ -153,10 +189,53 @@ void Motor::update(void)
   }
 }
 
-void Motor::setUpdateFrequencyMS(int timeMS)
+void Motor::pidSetUpdateFrequencyMS(int timeMS)
 {
   _pid.SetSampleTime(timeMS);
 }
 
+void Motor::pidPrintValues(void)
+{
+  Serial.print("SET:");
+  Serial.println(_pidSetpoint);
+  Serial.print("INP:");
+  Serial.println(_pidInput);
+  Serial.print("OUT:");
+  Serial.println(_pidOutput);
+}
 
+double Motor::pidGetKp(void)
+{
+    return _pid.GetKp();
+}
+
+double Motor::pidGetKi(void)
+{
+    return _pid.GetKi();
+}
+
+double Motor::pidGetKd(void)
+{
+    return _pid.GetKd();
+}
+
+void Motor::pidSetKp(double Kp)
+{
+    _pid.SetTunings(Kp, _pid.GetKi(), _pid.GetKd());
+}
+
+void Motor::pidSetKi(double Ki)
+{
+    _pid.SetTunings(_pid.GetKp(), Ki, _pid.GetKd());
+}
+
+void Motor::pidSetKd(double Kd)
+{
+    _pid.SetTunings(_pid.GetKp(), _pid.GetKi(), Kd);
+}
+
+void Motor::pidSetTunings(double Kp, double Ki, double Kd)
+{
+    _pid.SetTunings(Kp, Ki, Kd);
+}
 

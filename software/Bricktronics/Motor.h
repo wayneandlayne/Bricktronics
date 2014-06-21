@@ -42,9 +42,9 @@
 // TODO should we remove the copy of PID from utilities and make the user install it themselves?
 #include "utility/PID_v1.h"
 
-#define MOTOR_PID_KP                0.8
-#define MOTOR_PID_KI                0.003
-#define MOTOR_PID_KD                1.0
+#define MOTOR_PID_KP                2.5
+#define MOTOR_PID_KI                0.1
+#define MOTOR_PID_KD                0.1
 // We can have different PID modes, for now speed and position
 #define MOTOR_PID_MODE_DISABLED     0
 #define MOTOR_PID_MODE_POSITION     1
@@ -93,7 +93,18 @@ class Motor
         // often as the frequency setpoint (defaults to 50ms), which can be updated below.
         void update(void);
         // Update the maximum frequency at which the PID algorithm will actually update.
-        void setUpdateFrequencyMS(int timeMS);
+        void pidSetUpdateFrequencyMS(int timeMS);
+        // Print out the PID values
+        void pidPrintValues(void);
+        // Functions for getting and setting the PID tuning parameters
+        double pidGetKp(void);
+        double pidGetKi(void);
+        double pidGetKd(void);
+        // Use the combined pidSetTunings if you can, it's faster.
+        void pidSetTunings(double Kp, double Ki, double Kd);
+        void pidSetKp(double Kp);
+        void pidSetKi(double Ki);
+        void pidSetKd(double Kd);
 
 
         // Raw, uncontroleld speed settings
@@ -102,23 +113,39 @@ class Motor
         void rawSetSpeed(int16_t s);
 
 
+        // Position control functions
+        void goToPosition(int32_t position);
+        //void gotoPositionWait(int16_t position);
+        //void gotoPositionWaitTimeout(int16_t position, uint16_t timeoutMS);
+
+        // Angle control functions - 0 - 359, handles discontinuity nicely.
+        // TODO this means we can't do sub-degree positioning, which only
+        // really becomes noticable if we scale-up the output by a lot.
+        // Can specify any angle, positive or negative. If you say 
+        // "go to angle 721" it will be the same as "go to angle 1".
+        // Similarly, "go to angle -60" will be "go to angle 300".
+        // If you want "go 45 degrees clockwise from here", try using
+        // m.goToAngle(m.getAngle() + 45);
+        void goToAngle(int32_t angle);
+        //void gotoAngleWait(int16_t angle);
+        //void gotoAngleWaitTimeout(int16_t angle, uint16_t timeoutMS);
+        uint16_t getAngle(void); // Returns the current angle (0-359)
+        void setAngle(int32_t angle); // Updates the encoder position to be the specified angle
+
+        // For the angle control, the user can specify a different multiplier
+        // between motor encoder ticks and "output rotations", defaults to 1.
+        // Use this setting if your motor is connected to a gear train that
+        // makes a different number of motor rotations per output rotation.
+        // For example, if you have a 5:1 gear train between your motor and
+        // the final output, then you can specify this value as 5.
+        // Negative numbers? Should work just fine.
+        void setAngleOutputMultiplier(int8_t multiplier);
+
         // Speed control functions
         // The driver will monitor and try to adjust the drive duty cycle
         // to keep the actual speed close to the setpoint.
         // TODO
         
-
-        // Position control functions
-        void goToPosition(int16_t position);
-        void gotoPositionWait(int16_t position);
-        void gotoPositionWaitTimeout(int16_t position, uint16_t timeoutMS);
-
-        // Angle control functions - 0 - 359, handles discontinuity nicely
-        // TODO what should the input be? Handle negative numbers?
-        // What is the permissible input range? -360 to +360 degrees?
-        //void goToAngle(int16_t angle);
-        //void gotoAngleWait(int16_t angle);
-        //void gotoAngleWaitTimeout(int16_t angle, uint16_t timeoutMS);
 
 
     //private:
@@ -138,6 +165,9 @@ class Motor
 
         // Tracks the position of the motor
         Encoder _encoder;
+
+        // Check out the comments above for setAngleOutputMultiplier()
+        int8_t _angleMultiplier;
 
         // For the Bricktronics Shield, which has an I2C I/O expander chip, we need a way to
         // override some common Arduino functions. We use function pointers here to handle this.
