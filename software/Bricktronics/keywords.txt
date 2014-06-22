@@ -38,6 +38,7 @@ pidSetKp        KEYWORD2
 pidSetKi        KEYWORD2
 pidSetKd        KEYWORD2
 rawSetSpeed     KEYWORD2
+rawGetSpeed     KEYWORD2
 goToPosition    KEYWORD2
 goToAngle       KEYWORD2
 getAngle        KEYWORD2
