@@ -189,6 +189,17 @@ void Motor::update(void)
   }
 }
 
+void Motor::delayUpdateMS(int delayMS)
+{
+  unsigned long endTime = millis() + delayMS;
+  while (millis() < endTime)
+  {
+    update();
+    // We could put a delay(5) here, but the PID library already has a 
+    // "sample time" parameter to only run so frequent, you know?
+  }
+}
+
 void Motor::pidSetUpdateFrequencyMS(int timeMS)
 {
   _pid.SetSampleTime(timeMS);

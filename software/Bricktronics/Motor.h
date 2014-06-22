@@ -93,6 +93,11 @@ class Motor
         // often as the frequency setpoint (defaults to 50ms), which can be updated below.
         void update(void);
         // Update the maximum frequency at which the PID algorithm will actually update.
+        // Periodically call update for the specified duration
+        void delayUpdateMS(int delayMS);
+
+
+        // PID related functions
         void pidSetUpdateFrequencyMS(int timeMS);
         // Print out the PID values
         void pidPrintValues(void);
