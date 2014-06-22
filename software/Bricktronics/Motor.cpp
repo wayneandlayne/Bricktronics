@@ -128,6 +128,11 @@ void Motor::rawSetSpeed(int16_t s)
   }
 }
 
+int16_t Motor::rawGetSpeed(void)
+{
+    return _rawSpeed;
+}
+
 
 void Motor::goToPosition(int32_t position)
 {

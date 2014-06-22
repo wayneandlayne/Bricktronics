@@ -116,6 +116,8 @@ class Motor
         // There is no control of the speed here,
         // just set a value between -255 and +255 (0 = stop).
         void rawSetSpeed(int16_t s);
+        // Retrieves the previously-set raw speed.
+        int16_t rawGetSpeed(void);
 
 
         // Position control functions
