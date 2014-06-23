@@ -26,15 +26,15 @@
 // call Bricktronics::begin() in the setup() function below. Select the
 // motor port (BS_MOTOR_1 or BS_MOTOR_2) in the constructor below.
 //
-#include <Wire.h>
-#include <Bricktronics.h>
-Motor m = Motor(Bricktronics::BS_MOTOR_1);
+//#include <Wire.h>
+//#include <Bricktronics.h>
+//Motor m = Motor(Bricktronics::BS_MOTOR_1);
 
 // 2. With a Bricktronics Megashield - Include these lines below but do not
 // call Bricktronics::being() in the setup() function below. Select the
 // desired motor port (BMS_MOTOR_1 through BMS_MOTOR_6) in the constructor below.
 //
-// #include <Bricktronics.h>
+//#include <Bricktronics.h>
 //Motor m = Motor(Bricktronics::BMS_MOTOR_1);
 
 // 3. With a Bricktronics Motor Driver - No additional #includes needed,
@@ -56,7 +56,7 @@ void setup()
 {
   // Only call this line if you are using a Bricktronics Shield,
   // otherwise leave it commented-out.
-  Bricktronics::begin();
+  //Bricktronics::begin();
 
   // Initialize the motor connections
   m.begin();

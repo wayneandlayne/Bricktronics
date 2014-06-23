@@ -19,9 +19,9 @@
 // Select the sensor port for the ColorSensor (BS_SENSOR_3 and BS_SENSOR_4) below.
 // Use the jumpers to connect only pins 3-4 for the color sensor.
 //
-#include <Wire.h>
-#include <Bricktronics.h>
-ColorSensor c = ColorSensor(Bricktronics::BS_SENSOR_3);
+//#include <Wire.h>
+//#include <Bricktronics.h>
+//ColorSensor c = ColorSensor(Bricktronics::BS_SENSOR_3);
 
 // 2. With a Bricktronics Megashield - Include these lines but do not
 // call Bricktronics::begin() in the setup() function below.
@@ -29,7 +29,7 @@ ColorSensor c = ColorSensor(Bricktronics::BS_SENSOR_3);
 // Use the jumpers to connect only pins 3-4 for the color sensor.
 //
 //#include <Bricktronics.h>
-//ColorSensor c = ColorSensor(Bricktronics::BMS_SENSOR_1);
+//ColorSensor c = ColorSensor(Bricktronics::BMS_SENSOR_3);
 
 // 3. With a Bricktronics Breakout board - No additional includes needed, just
 // update the pin assignments in the ColorSensor constructor below.

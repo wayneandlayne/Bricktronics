@@ -31,10 +31,10 @@
 // (BS_SENSOR_1 through BS_SENSOR_4) in the constructors below.
 // If your chosen sensor port has jumpers (ports 3 and 4), connect pins 2-3 and 4-5.
 //
-#include <Wire.h>
-#include <Bricktronics.h>
-Motor m = Motor(Bricktronics::BS_MOTOR_1);
-Button b = Button(Bricktronics::BS_SENSOR_1);
+//#include <Wire.h>
+//#include <Bricktronics.h>
+//Motor m = Motor(Bricktronics::BS_MOTOR_1);
+//Button b = Button(Bricktronics::BS_SENSOR_1);
 
 // 2. With a Bricktronics Megashield - Include these lines but do not
 // call Bricktronics::begin() in the setup() function below.
@@ -71,7 +71,7 @@ void setup()
 {
   // Only call this if you are using a Bricktronics Shield,
   // otherwise leave it commented-out.
-  Bricktronics::begin();
+  //Bricktronics::begin();
 
   // Initialize the motor and button connections
   m.begin();

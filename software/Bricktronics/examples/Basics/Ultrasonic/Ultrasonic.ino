@@ -28,9 +28,9 @@
 // Select the sensor port for the Ultrasonic (BS_SENSOR_3 and BS_SENSOR_4) below.
 // Use the jumpers to connect pins 1-2 and 4-5 for the ultrasonic sensor.
 //
-#include <Wire.h>
-#include <Bricktronics.h>
-Ultrasonic u = Ultrasonic(Bricktronics::BS_SENSOR_3);
+//#include <Wire.h>
+//#include <Bricktronics.h>
+//Ultrasonic u = Ultrasonic(Bricktronics::BS_SENSOR_4);
 
 // 2. With a Bricktronics Megashield - Include these lines but do not
 // call Bricktronics::begin() in the setup() function below.
@@ -38,7 +38,7 @@ Ultrasonic u = Ultrasonic(Bricktronics::BS_SENSOR_3);
 // Use the jumpers to connect pins 1-2 and 4-5 for the ultrasonic sensor.
 //
 //#include <Bricktronics.h>
-//Ultrasonic u = Ultrasonic(Bricktronics::BMS_SENSOR_1);
+//Ultrasonic u = Ultrasonic(Bricktronics::BMS_SENSOR_4);
 
 // 3. With a Bricktronics Breakout board - No additional includes needed, just
 // update the pin assignments in the Ultrasonic constructor below.
@@ -55,7 +55,7 @@ void setup()
 
   // Only call this if you are using a Bricktronics Shield,
   // otherwise leave it commented-out.
-  Bricktronics::begin();
+  //Bricktronics::begin();
 
   // Initialize the ultrasonic sensor connections
   u.begin();
