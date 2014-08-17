@@ -193,7 +193,7 @@ const SensorSettings Bricktronics::BMS_SENSOR_4 = {
 
 
 // This library instance does not belong to any instance of Bricktronics,
-// and is only used by the three Brucktronics member functions below,
+// and is only used by the three Bricktronics member functions below,
 // plus the begin() function.
 Adafruit_MCP23017 Bricktronics::mcp;
 
