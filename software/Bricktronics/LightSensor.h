@@ -34,53 +34,108 @@
 // Library header files
 #include "Settings.h"
 
-#define LIGHT_SENSOR_BASE_VALUE 1023
-#define LIGHT_SENSOR_BASE_HIGH_VALUE 990
-#define LIGHT_SENSOR_BASE_LOW_VALUE 750
+// The light sensor is an analog sensor, and outputs a voltage inversely-
+// proportional to the brightness (high-brightness = low voltage,
+// low-brightness = high voltage). We use this value to flip this relationship,
+// so now bright = high value, dim = low value, which seems more natural.
+#define LIGHT_SENSOR_BASE_VALUE                         1023
+
+// If you choose to use the floodlight to illuminate the sensor's target,
+// it helps to have a small delay after turning on the floodlight before
+// you read the analog value from the sensor. This is the default value,
+// but you can always update the delay using the function below.
+#define LIGHT_SENSOR_FLOODLIGHT_DELAY_VALUE_IN_MS       50
+
+// These control whether the light is turned on never, only for readings,
+// or always. It seems to work better without the light on.
+#define LIGHT_SENSOR_FLOODLIGHT_USE_DEFAULT             false
+#define LIGHT_SENSOR_FLOODLIGHT_USE_ALWAYS_DEFAULT      false
+
+// This library allows you to calibrate the sensor for "dim" and "bright".
+// These constants are the default values used if you don't calibrate it.
+#define LIGHT_SENSOR_BASE_HIGH_VALUE                    990
+#define LIGHT_SENSOR_BASE_LOW_VALUE                     750
 
 class LightSensor
 {
     public:
         // Constructor - Simple constructor accepts input and light control pin
-        // You can also specify whether or not to light up the light.
-        LightSensor(uint8_t inputPin, uint8_t lightPin, bool floodlight);
+        // The input pin needs to support analog input pin.
+        // The output pin needs to support digital output pin (almost every pin).
+        LightSensor(uint8_t inputPin, uint8_t lightPin);
 
         // Constructor - Advanced constructor accepts a SensorSettings
         // struct to also override the low-level Arduino functions.
-        // You can also specify whether or not to light up the light.
-        LightSensor(const SensorSettings &settings, bool floodlight);
+        // This constructor is used for the Bricktronics Shield and Megashield.
+        LightSensor(const SensorSettings &settings);
 
         // Starts up the sensor
         void begin(void);
 
-        // TODO document these functions
+        // Basic sensor read function:
+        // If you want the light on, it turns it on here, delays 50ms,
+        // performs the analog read, then turns off the light (if it was on).
+        // Scale is from 0 (very dark) to 1023 (very bright), but usually the
+        // actual range is 
+        int value(void);
 
-        // Scales the raw brightness into an int between 0 and 100
-        // Uses _lowValue _highValue for scaling range
-        int lightValue();
-
-        // Reads a raw, unscaled brightness value from the sensor
-        int value();
-
-        // Detects if the measured brightness is below a threshold
-        bool isDark();
+        // Scales the raw brightness from value() into an int between 0 and 100
+        // Uses _calibrationLowValue and _calibrationHighValue for scaling range.
+        // Constrained to return a value between 0 and 100 inclusive.
+        uint8_t scaledValue(void);
 
         // Calibration functions - Point the light sensor at your bright
         // and dark objects/surfaces, then call this function.
-        // Takes the average of 16 samples and updates _lowValue or _highValue.
-        bool calibrateLow();
-        bool calibrateHigh();
+        // Takes the average of 16 samples and updates the internal
+        // calibration values for use with lightValue.
+        // Both functions return true if the calibration passes a simple
+        // sanity check (that is, if _calibrationLowValue < _calibrationHighValue).
+        bool calibrateLow(void);    // For your "dark" object/surface
+        bool calibrateHigh(void);   // For your "bright" object/surface
+
+        // Manual calibration functions
+        void setCalibrationLowValue(int value);
+        int getCalibrationLowValue(void);
+        void setCalibrationHighValue(int value);
+        int getCalibrationHighValue(void);
+
+        // The sensor has a small light that can be used to illuminate the
+        // sensor's target. There are two settings to control this light, and
+        // by default the light never turns on.
+        // - If both are false, the light is never turned on (default).
+        // - If setFloodlight is enabled, the light is turned on for each reading.
+        // - If setFloodlightAlways in enabled, the light is always on,
+        //   and the value of setFloodlight is ignored.
+        // If you want to manually control the light, call setFloodlight(false)
+        // and use setFloodlightAlways(true / false) to turn it on and off.
+        void setFloodlight(bool enable);
+        bool getFloodlight(void);
+        void setFloodlightAlways(bool enable);
+        bool getFloodlightAlways(void);
+
+        // If you have set the sensor to only turn on the light while reading the
+        // sensor's value, this function lets you control how long to delay between
+        // turning on the light and taking the reading. Value is in milliseconds.
+        void setFloodlightDelayInMs(uint16_t delayInMs);
+        uint16_t getFloodlightDelayInMs(void);
 
     //private:
         // We really don't like to hide things inside private,
         // but if we did, these would be the private items.
         uint8_t _inputPin;
         uint8_t _lightPin;
+        uint16_t _floodlightDelayInMs;
         bool _useFloodlight;
-        int _highValue;
-        int _lowValue;
+        bool _useFloodlightAlways;
+        int _calibrationHighValue;
+        int _calibrationLowValue;
 
-        void _calibrate(int *limit);
+        // Used by the calibration functions above,
+        // this performs the actual sampling and averaging.
+        void _calibrate(int *which);
+
+        // This performs a sanity check on the current calibration settings
+        bool _calibrationSanityCheck(void);
 
         // For the Bricktronics Shield, which has an I2C I/O expander chip,
         // we need a way to override some common Arduino functions. We use

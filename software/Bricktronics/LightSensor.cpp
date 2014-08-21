@@ -24,12 +24,14 @@
 
 // This is the simplified constructor that allows you to specify only the
 // two pins to connect the Light Sensor.
-LightSensor::LightSensor(uint8_t inputPin, uint8_t lightPin, bool floodlight):
+LightSensor::LightSensor(uint8_t inputPin, uint8_t lightPin):
     _inputPin(inputPin),
     _lightPin(lightPin),
-    _useFloodlight(floodlight),
-    _highValue(LIGHT_SENSOR_BASE_HIGH_VALUE),
-    _lowValue(LIGHT_SENSOR_BASE_LOW_VALUE),
+    _floodlightDelayInMs(LIGHT_SENSOR_FLOODLIGHT_DELAY_VALUE_IN_MS),
+    _useFloodlight(LIGHT_SENSOR_FLOODLIGHT_USE_DEFAULT),
+    _useFloodlightAlways(LIGHT_SENSOR_FLOODLIGHT_USE_ALWAYS_DEFAULT),
+    _calibrationHighValue(LIGHT_SENSOR_BASE_HIGH_VALUE),
+    _calibrationLowValue(LIGHT_SENSOR_BASE_LOW_VALUE),
     _pinMode(&::pinMode),
     _digitalWrite(&::digitalWrite),
     _digitalRead(&::digitalRead)
@@ -39,75 +41,124 @@ LightSensor::LightSensor(uint8_t inputPin, uint8_t lightPin, bool floodlight):
 
 // This is the complicated constructor that allows for overriding the
 // low-level Arduino functions.
-LightSensor::LightSensor(const SensorSettings &settings, bool floodlight):
+LightSensor::LightSensor(const SensorSettings &settings):
     _inputPin(settings.ANA),
     _lightPin(settings.DA),
-    _useFloodlight(floodlight),
-    _highValue(LIGHT_SENSOR_BASE_HIGH_VALUE),
-    _lowValue(LIGHT_SENSOR_BASE_LOW_VALUE),
-    _pinMode(&::pinMode),
-    _digitalWrite(&::digitalWrite),
-    _digitalRead(&::digitalRead)
+    _floodlightDelayInMs(LIGHT_SENSOR_FLOODLIGHT_DELAY_VALUE_IN_MS),
+    _useFloodlight(LIGHT_SENSOR_FLOODLIGHT_USE_DEFAULT),
+    _useFloodlightAlways(LIGHT_SENSOR_FLOODLIGHT_USE_ALWAYS_DEFAULT),
+    _calibrationHighValue(LIGHT_SENSOR_BASE_HIGH_VALUE),
+    _calibrationLowValue(LIGHT_SENSOR_BASE_LOW_VALUE),
+    _pinMode(settings.pinMode),
+    _digitalWrite(settings.digitalWrite),
+    _digitalRead(settings.digitalRead)
 {
     // Nothing to do here
 }
 
 void LightSensor::begin(void)
 {
-    // TODO do we really want to set the input pin as a input w/pullup?
-    // we are going to be doing analogRead(_inputPin) later on...
+    // Set input pin as an input (analog input)
     _pinMode(_inputPin, INPUT_PULLUP);
-    _digitalWrite(_inputPin, HIGH);
 
+    // Set light pin as an output, default to light off
     _pinMode(_lightPin, OUTPUT);
-    _digitalWrite(_lightPin, LOW); // default to light off, right? TODO
+    _digitalWrite(_lightPin, LOW);
 }
 
-bool LightSensor::isDark(void)
+void LightSensor::setFloodlight(bool enable)
 {
-    return (lightValue() < 50); //TODO fix magic number
+    _useFloodlight = enable;
+}
+bool LightSensor::getFloodlight(void)
+{
+    return _useFloodlight;
 }
 
-int LightSensor::lightValue()
+void LightSensor::setFloodlightAlways(bool enable)
 {
-    return 100 * ( (float)( value() - _lowValue ) / (float)( _highValue - _lowValue ) );
+    _useFloodlightAlways = enable;
+    _digitalWrite(_lightPin, enable ? HIGH : LOW);
+}
+bool LightSensor::getFloodlightAlways(void)
+{
+    return _useFloodlightAlways;
+}
+
+void LightSensor::setFloodlightDelayInMs(uint16_t delayInMs)
+{
+    _floodlightDelayInMs = delayInMs;
+}
+uint16_t LightSensor::getFloodlightDelayInMs(void)
+{
+    return _floodlightDelayInMs;
 }
 
 int LightSensor::value(void)
 {
-    if (_useFloodlight)
+    int sensorValue;
+
+    if (_useFloodlight && !_useFloodlightAlways)
     {
         _digitalWrite(_lightPin, HIGH);
+        delay(_floodlightDelayInMs);
     }
-    _digitalWrite(_inputPin, HIGH);
-    int sensorValue = analogRead(_inputPin);
-    delay(50); // TODO magic number, also how long does this really need to be?
-    if (_useFloodlight)
+    sensorValue = analogRead(_inputPin);
+    if (_useFloodlight && !_useFloodlightAlways)
     {
         _digitalWrite(_lightPin, LOW);
     }
     return (LIGHT_SENSOR_BASE_VALUE - sensorValue);
 }
 
-void LightSensor::_calibrate(int *limit)
+uint8_t LightSensor::scaledValue(void)
 {
-    int calibrateValue = 0;
-    for (uint8_t i = 0; i < 16; i++ )
-    {
-        calibrateValue += value();
-    }
-    *limit = calibrateValue >> 4;
+    return constrain(map(value(), _calibrationLowValue, _calibrationHighValue, 0, 100), 0, 100);
+}
+
+void LightSensor::setCalibrationLowValue(int value)
+{
+    _calibrationLowValue = value;
+}
+int LightSensor::getCalibrationLowValue(void)
+{
+    return _calibrationLowValue;
+}
+
+void LightSensor::setCalibrationHighValue(int value)
+{
+    _calibrationHighValue = value;
+}
+int LightSensor::getCalibrationHighValue(void)
+{
+    return _calibrationHighValue;
 }
 
 bool LightSensor::calibrateLow()
 {
-    _calibrate(&_lowValue);
-    return (_lowValue < _highValue);
+    _calibrate(&_calibrationLowValue);
+    return _calibrationSanityCheck();
 }
 
 bool LightSensor::calibrateHigh()
 {
-    _calibrate(&_highValue);
-    return (_lowValue < _highValue);
+    _calibrate(&_calibrationHighValue);
+    return _calibrationSanityCheck();
+}
+
+void LightSensor::_calibrate(int *which)
+{
+    *which = 0;
+    for (uint8_t i = 0; i < 16; i++)
+    {
+        *which += value();
+    }
+    *which >>= 4;
+}
+
+bool LightSensor::_calibrationSanityCheck(void)
+{
+    // Someday add other checks? This should be good for now.
+    return (_calibrationLowValue < _calibrationHighValue);
 }
 

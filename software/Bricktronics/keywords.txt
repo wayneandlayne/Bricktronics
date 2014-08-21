@@ -13,6 +13,7 @@ ColorSensor	KEYWORD1
 Ultrasonic	KEYWORD1
 MotorSettings   KEYWORD1
 SensorSettings  KEYWORD1
+LightSensor     KEYWORD1
 
 
 #######################################
@@ -56,14 +57,29 @@ printColor      KEYWORD2
 # Ultrasonic
 getDistance     KEYWORD2
 
+# LightSensor
+value                   KEYWORD2
+scaledvalue             KEYWORD2
+calibrateLow            KEYWORD2
+calibrateHigh           KEYWORD2
+setCalibrationLowValue  KEYWORD2
+getCalibrationLowValue  KEYWORD2
+setCalibrationHighValue KEYWORD2
+getCalibrationHighValue KEYWORD2
+setFloodlight           KEYWORD2
+getFloodlight           KEYWORD2
+setFloodlightAlways     KEYWORD2
+getFloodlightAlways     KEYWORD2
+setFloodlightDelayInMs  KEYWORD2
+getFloodlightDelayInMs  KEYWORD2
+
+# TODO fix the tabbing in this file when we're ready to release
+
+
 
 #######################################
 # Constants (LITERAL1)
 #######################################
-
-# Motor
-
-# Button
 
 # ColorSensor
 TYPE_COLORFULL  LITERAL1
@@ -71,3 +87,4 @@ TYPE_COLORRED   LITERAL1
 TYPE_COLORGREEN LITERAL1
 TYPE_COLORBLUE  LITERAL1
 TYPE_COLORNONE  LITERAL1
+
