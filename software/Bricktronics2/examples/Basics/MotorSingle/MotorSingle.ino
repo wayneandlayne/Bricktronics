@@ -54,6 +54,9 @@
 
 void setup()
 {
+  // Be sure to set your serial console to 115200 baud
+  Serial.begin(115200);
+
   // Only call this line if you are using a Bricktronics Shield,
   // otherwise leave it commented-out.
   //Bricktronics::begin();

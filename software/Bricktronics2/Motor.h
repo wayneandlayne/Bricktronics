@@ -18,15 +18,8 @@
 
     Wayne and Layne, LLC and our products are not connected to or endorsed by the LEGO Group.
     LEGO, Mindstorms, and NXT are trademarks of the LEGO Group.
-*/
 
-/*
-   // TODO Test PID position control
-   // TODO Do we need the delay_update functions anymore?
-   // TODO isAtPosition(epsilon) check?
-   // TODO Speed control
-   // TODO Position control
-   // TODO Angle control end-user API wrapper around position control
+    TODO isAtPosition(epsilon) check?
 */
 
 
@@ -42,10 +35,11 @@
 // TODO should we remove the copy of PID from utilities and make the user install it themselves?
 #include "utility/PID_v1.h"
 
+// These are the default motor PID values for P, I, and D.
 #define MOTOR_PID_KP                2.5
 #define MOTOR_PID_KI                0.1
 #define MOTOR_PID_KD                0.1
-// We can have different PID modes, for now speed and position
+// We can have different PID modes, for now, speed and position
 #define MOTOR_PID_MODE_DISABLED     0
 #define MOTOR_PID_MODE_POSITION     1
 #define MOTOR_PID_MODE_SPEED        2
@@ -85,6 +79,13 @@ class Motor
         //     This only sets the number corresponding to the motor's current position.
         //     Usually you just want to reset the position to zero.
         void setPosition(int32_t pos);
+        // Motors have some slop in their encoder output readings, so these two functions
+        // can be used to make a "close enough?" check. The epsilon value can bet get/set
+        // using these functions, and is used in the atPosition check like this:
+        // return (abs(getPosition() - position) < _epsilon);
+        bool atPosition(int32_t position);
+        void setEpsilon(int8_t epsilon);
+        int8_t getEpsilon(void);
 
 
         // Some of the functions below need to periodically check on the motor's operation
@@ -93,7 +94,6 @@ class Motor
         // often as the frequency setpoint (defaults to 50ms), which can be updated below.
         void update(void);
         // Update the maximum frequency at which the PID algorithm will actually update.
-        // Periodically call update for the specified duration
         void delayUpdateMS(int delayMS);
 
 
@@ -122,22 +122,29 @@ class Motor
 
         // Position control functions
         void goToPosition(int32_t position);
-        //void gotoPositionWait(int16_t position);
-        //void gotoPositionWaitTimeout(int16_t position, uint16_t timeoutMS);
+        // Go to the specified position using PID, but wait until the motor arrives
+        void goToPositionWait(int32_t position);
+        // Same as above, but return after timeoutMS milliseconds in case it gets stuck
+        // Returns true if we made it to position, false if we had a timeout
+        bool goToPositionWaitTimeout(int32_t position, uint32_t timeoutMS);
 
         // Angle control functions - 0 - 359, handles discontinuity nicely.
-        // TODO this means we can't do sub-degree positioning, which only
-        // really becomes noticable if we scale-up the output by a lot.
         // Can specify any angle, positive or negative. If you say 
         // "go to angle 721" it will be the same as "go to angle 1".
         // Similarly, "go to angle -60" will be "go to angle 300".
         // If you want "go 45 degrees clockwise from here", try using
         // m.goToAngle(m.getAngle() + 45);
-        void goToAngle(int32_t angle);
-        //void gotoAngleWait(int16_t angle);
-        //void gotoAngleWaitTimeout(int16_t angle, uint16_t timeoutMS);
+        int32_t goToAngle(int32_t angle); // returns the destination position
+        // Go to the specified angle using PID, but wait until the motor arrives
+        void goToAngleWait(int32_t angle);
+        // Same as above, but return after timeoutMS milliseconds in case it gets stuck
+        // Returns true if we made it to the desired position, false if we had a timeout
+        bool goToAngleWaitTimeout(int32_t angle, uint32_t timeoutMS);
+
         uint16_t getAngle(void); // Returns the current angle (0-359)
         void setAngle(int32_t angle); // Updates the encoder position to be the specified angle
+        // TODO Using integer angles means we can't do sub-degree positioning,
+        // which only really becomes noticable if we scale-up the output by a lot.
 
         // For the angle control, the user can specify a different multiplier
         // between motor encoder ticks and "output rotations", defaults to 1.
@@ -145,14 +152,8 @@ class Motor
         // makes a different number of motor rotations per output rotation.
         // For example, if you have a 5:1 gear train between your motor and
         // the final output, then you can specify this value as 5.
-        // Negative numbers? Should work just fine.
+        // Negative numbers should work just fine.
         void setAngleOutputMultiplier(int8_t multiplier);
-
-        // Speed control functions
-        // The driver will monitor and try to adjust the drive duty cycle
-        // to keep the actual speed close to the setpoint.
-        // TODO
-        
 
 
     //private:
@@ -175,6 +176,14 @@ class Motor
 
         // Check out the comments above for setAngleOutputMultiplier()
         int8_t _angleMultiplier;
+
+        // When checking if the motor has reached a certain position,
+        // there is likely to be a small amount of "slop", and it would be
+        // unreasonable to stall forever trying to get to position 180 but
+        // we are "only" at position 179. This value can be read/set using
+        // the functions above, and is used in position check like this:
+        // abs(getPosition() - checkPosition) > _epsilon
+        uint8_t _epsilon;
 
         // For the Bricktronics Shield, which has an I2C I/O expander chip, we need a way to
         // override some common Arduino functions. We use function pointers here to handle this.

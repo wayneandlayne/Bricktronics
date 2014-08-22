@@ -141,6 +141,34 @@ void Motor::goToPosition(int32_t position)
   _pidSetpoint = position;
 }
 
+void Motor::goToPositionWait(int32_t position)
+{
+    goToPosition(position);
+    while (!atPosition(position))
+    {
+        update();
+    }
+}
+
+bool Motor::goToPositionWaitTimeout(int32_t position, uint32_t timeoutMS)
+{
+    goToPosition(position);
+    timeoutMS += millis(); // future time when we timeout
+    while ( !atPosition(position) && (millis() < timeoutMS) )
+    {
+        update();
+    }
+    if (millis() >= timeoutMS)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool Motor::atPosition(int32_t position)
+{
+    return (abs(getPosition() - position) < _epsilon);
+}
 
 void Motor::setAngleOutputMultiplier(int8_t multiplier)
 {
@@ -149,7 +177,7 @@ void Motor::setAngleOutputMultiplier(int8_t multiplier)
   _angleMultiplier = multiplier << 1;
 }
 
-void Motor::goToAngle(int32_t angle)
+int32_t Motor::goToAngle(int32_t angle)
 {
   int16_t delta = (angle % 360) - getAngle();
 
@@ -160,7 +188,33 @@ void Motor::goToAngle(int32_t angle)
 
   // Now, delta is between -180 and +180
 
-  goToPosition(getPosition() + (delta * _angleMultiplier));
+  int32_t position = getPosition() + (delta * _angleMultiplier);
+  goToPosition(position);
+  return position;
+}
+
+void Motor::goToAngleWait(int32_t angle)
+{
+    int32_t position = goToAngle(angle);
+    while (!atPosition(position))
+    {
+        update();
+    }
+}
+
+bool Motor::goToAngleWaitTimeout(int32_t angle, uint32_t timeoutMS)
+{
+    int32_t position = goToAngle(angle);
+    timeoutMS += millis(); // future time when we timeout
+    while ( !atPosition(position) && (millis() < timeoutMS) )
+    {
+        update();
+    }
+    if (millis() >= timeoutMS)
+    {
+        return false;
+    }
+    return true;
 }
 
 uint16_t Motor::getAngle(void)
