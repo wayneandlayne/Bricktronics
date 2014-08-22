@@ -34,11 +34,13 @@
 // Library header files
 #include "Settings.h"
 
-// The sound sensor has two modes of operation, DB and DBA
-// TODO more details here
-// DB = SP_DIGI0, DBA = SP_DIGI1
-// DIGI0 = pin 5 on NXT connector
-// DIGI1 = pin 6 on NXT connector
+// The sound sensor has two modes of operation, DB and DBA.
+// DB mode considers all sound frequencies equally.
+// DBA mode adapts the sensor's response to try and more-closely
+// approximate the human hearing frequency response.
+// The sensor uses pins 5 and 6 to determine which mode to use.
+// Either pin 5 or pin 6 should be set high, and the other set low.
+// Pin 5 high = DB mode, pin 6 hight = DBA mode.
 #define SOUND_SENSOR_MODE_DB                            0
 #define SOUND_SENSOR_MODE_DBA                           1
 
@@ -47,7 +49,7 @@
 
 // The sound sensor is an analog sensor, and outputs a voltage inversely-
 // proportional to the sound level (noisy = low voltage, quiet = high voltage).
-// We use this value to flip this relationship, TODO check inverse
+// We use this value to flip this relationship,
 // so now noisy = high value, quiet = low value, which seems more natural.
 #define SOUND_SENSOR_BASE_VALUE                         1023
 
@@ -69,7 +71,7 @@ class SoundSensor
 
         // Basic sensor read function:
         // Scale is from 0 (very quiet) to 1023 (very loud), but usually the
-        // actual range is TODO.
+        // actual range is from about 250 (quiet room) to 980 (loudspeaker).
         uint16_t value(void);
 
         // Change sensor mode between DB and DBA. Use these two values:

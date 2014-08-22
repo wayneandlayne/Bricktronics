@@ -41,7 +41,7 @@ SoundSensor::SoundSensor(uint8_t inputPin, uint8_t dbPin, uint8_t dbaPin):
 SoundSensor::SoundSensor(const SensorSettings &settings):
     _inputPin(settings.ANA),
     _dbPin(settings.DA),
-    _dbaPin(settings.DB), // TODO check this
+    _dbaPin(settings.DB),
     _mode(SOUND_SENSOR_MODE_DEFAULT),
     _pinMode(settings.pinMode),
     _digitalWrite(settings.digitalWrite),
@@ -53,7 +53,7 @@ SoundSensor::SoundSensor(const SensorSettings &settings):
 void SoundSensor::begin(void)
 {
     // Set input pin as an input (analog input)
-    _pinMode(_inputPin, INPUT_PULLUP); // TODO with pullup?
+    _pinMode(_inputPin, INPUT_PULLUP);
 
     // Set DB/DBA pins as outputs, set them to default values
     _pinMode(_dbPin, OUTPUT);
