@@ -60,8 +60,8 @@ class LightSensor
 {
     public:
         // Constructor - Simple constructor accepts input and light control pin
-        // The input pin needs to support analog input pin.
-        // The output pin needs to support digital output pin (almost every pin).
+        // The input pin needs to support analog input.
+        // The output pin needs to support digital output (almost every pin).
         LightSensor(uint8_t inputPin, uint8_t lightPin);
 
         // Constructor - Advanced constructor accepts a SensorSettings
@@ -76,8 +76,8 @@ class LightSensor
         // If you want the light on, it turns it on here, delays 50ms,
         // performs the analog read, then turns off the light (if it was on).
         // Scale is from 0 (very dark) to 1023 (very bright), but usually the
-        // actual range is 
-        int value(void);
+        // actual range is 550 to 990.
+        uint16_t value(void);
 
         // Scales the raw brightness from value() into an int between 0 and 100
         // Uses _calibrationLowValue and _calibrationHighValue for scaling range.
@@ -94,10 +94,10 @@ class LightSensor
         bool calibrateHigh(void);   // For your "bright" object/surface
 
         // Manual calibration functions
-        void setCalibrationLowValue(int value);
-        int getCalibrationLowValue(void);
-        void setCalibrationHighValue(int value);
-        int getCalibrationHighValue(void);
+        void setCalibrationLowValue(uint16_t value);
+        uint16_t getCalibrationLowValue(void);
+        void setCalibrationHighValue(uint16_t value);
+        uint16_t getCalibrationHighValue(void);
 
         // The sensor has a small light that can be used to illuminate the
         // sensor's target. There are two settings to control this light, and
@@ -127,12 +127,12 @@ class LightSensor
         uint16_t _floodlightDelayInMs;
         bool _useFloodlight;
         bool _useFloodlightAlways;
-        int _calibrationHighValue;
-        int _calibrationLowValue;
+        uint16_t _calibrationHighValue;
+        uint16_t _calibrationLowValue;
 
         // Used by the calibration functions above,
         // this performs the actual sampling and averaging.
-        void _calibrate(int *which);
+        void _calibrate(uint16_t *which);
 
         // This performs a sanity check on the current calibration settings
         bool _calibrationSanityCheck(void);

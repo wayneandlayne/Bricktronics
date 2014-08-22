@@ -1,5 +1,5 @@
 #include <Wire.h>
-#include <Bricktronics.h>
+#include <Bricktronics2.h>
 
 // Getting started with Lego and Arduino
 // Chapter 7: GripperBot: Tank Base

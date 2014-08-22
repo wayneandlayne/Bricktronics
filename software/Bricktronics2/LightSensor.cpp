@@ -94,9 +94,9 @@ uint16_t LightSensor::getFloodlightDelayInMs(void)
     return _floodlightDelayInMs;
 }
 
-int LightSensor::value(void)
+uint16_t LightSensor::value(void)
 {
-    int sensorValue;
+    uint16_t sensorValue;
 
     if (_useFloodlight && !_useFloodlightAlways)
     {
@@ -116,20 +116,20 @@ uint8_t LightSensor::scaledValue(void)
     return constrain(map(value(), _calibrationLowValue, _calibrationHighValue, 0, 100), 0, 100);
 }
 
-void LightSensor::setCalibrationLowValue(int value)
+void LightSensor::setCalibrationLowValue(uint16_t value)
 {
     _calibrationLowValue = value;
 }
-int LightSensor::getCalibrationLowValue(void)
+uint16_t LightSensor::getCalibrationLowValue(void)
 {
     return _calibrationLowValue;
 }
 
-void LightSensor::setCalibrationHighValue(int value)
+void LightSensor::setCalibrationHighValue(uint16_t value)
 {
     _calibrationHighValue = value;
 }
-int LightSensor::getCalibrationHighValue(void)
+uint16_t LightSensor::getCalibrationHighValue(void)
 {
     return _calibrationHighValue;
 }
@@ -146,7 +146,7 @@ bool LightSensor::calibrateHigh()
     return _calibrationSanityCheck();
 }
 
-void LightSensor::_calibrate(int *which)
+void LightSensor::_calibrate(uint16_t *which)
 {
     *which = 0;
     for (uint8_t i = 0; i < 16; i++)

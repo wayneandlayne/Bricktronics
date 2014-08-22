@@ -1,5 +1,5 @@
 #include <Wire.h>
-#include <Bricktronics.h> // These three lines let the Arduino sketch use the Bricktronics library code that simplifies working with motors and sensors.
+#include <Bricktronics2.h> // These three lines let the Arduino sketch use the Bricktronics library code that simplifies working with motors and sensors.
 #include <Motor.h>
 #include <Button.h>
 

@@ -1,5 +1,5 @@
 #include <Wire.h>
-#include <Bricktronics.h>
+#include <Bricktronics2.h>
 #include <Motor.h>
 #include <Button.h>
 #include <SoftwareSerial.h>

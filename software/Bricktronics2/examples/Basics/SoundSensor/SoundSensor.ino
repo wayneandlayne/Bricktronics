@@ -28,7 +28,7 @@
 // For ports 3 and 4, use the jumpers to connect pins 1-2 and 4-5.
 //
 //#include <Wire.h>
-//#include <Bricktronics.h>
+//#include <Bricktronics2.h>
 //SoundSensor ss = SoundSensor(Bricktronics::BS_SENSOR_1);
 
 // 2. With a Bricktronics Megashield - Include these lines but do not
@@ -36,7 +36,7 @@
 // Select the sensor port for the sound sensor (BMS_SENSOR_1 through BMS_SENSOR_4) below.
 // Use the jumpers to connect pins 1-2 and 4-5 for the sound sensor.
 //
-//#include <Bricktronics.h>
+//#include <Bricktronics2.h>
 //SoundSensor ss = SoundSensor(Bricktronics::BMS_SENSOR_4);
 
 // 3. With a Bricktronics Breakout board - No additional includes needed, just

@@ -32,7 +32,7 @@
 // If your chosen sensor port has jumpers (ports 3 and 4), connect pins 2-3 and 4-5.
 //
 //#include <Wire.h>
-//#include <Bricktronics.h>
+//#include <Bricktronics2.h>
 //Motor m = Motor(Bricktronics::BS_MOTOR_1);
 //Button b = Button(Bricktronics::BS_SENSOR_1);
 
@@ -41,7 +41,7 @@
 // Select the desired motor port (BMS_MOTOR_1 through BMS_MOTOR_6) and sensor port
 // (BMS_SENSOR_1 through BMS_SENSOR_4) in the constructors below.
 // Connect pins 2-3 and 4-5 on the chosen sensor port.
-// #include <Bricktronics.h>
+// #include <Bricktronics2.h>
 //
 //Motor m = Motor(Bricktronics::BMS_MOTOR_1);
 //Button b = Button(Bricktronics::BMS_SENSOR_1);
