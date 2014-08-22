@@ -1,57 +1,50 @@
-/*
-    Bricktronics library for LEGO NXT Pushbutton sensors.
-    Copyright (C) 2014 Adam Wolf, Matthew Beckler, John Baichtal
-
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU General Public License
-    as published by the Free Software Foundation; either version 2
-    of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-    Wayne and Layne, LLC and our products are not connected to or endorsed by the LEGO Group.
-    LEGO, Mindstorms, and NXT are trademarks of the LEGO Group.
-*/
-
 #include "Button.h"
 
-Button::Button(uint8_t inputPin):
-    _inputPin(inputPin),
-    _pinMode(&::pinMode),
-    _digitalWrite(&::digitalWrite),
-    _digitalRead(&::digitalRead)
+Button::Button(Bricktronics* b,	uint8_t port)
 {
-    // Nothing to do here
-}
+    brick = b;
 
-Button::Button(const SensorSettings &settings):
-    _inputPin(settings.ANA),
-    _pinMode(settings.pinMode),
-    _digitalWrite(settings.digitalWrite),
-    _digitalRead(settings.digitalRead)
-{
-    // Nothing to do here
+    //TODO: do this a better way
+    switch (port)
+    {
+    case 1:
+        input_pin = S1_ANA;
+        break;
+    case 2:
+        input_pin = S2_ANA;
+        break;
+    case 3:
+        input_pin = S3_ANA;
+        break;
+    case 4:
+        input_pin = S4_ANA;
+        break;
+    }
 }
 
 void Button::begin(void)
 {
-    _pinMode(_inputPin, INPUT_PULLUP);
+    brick->pinMode(input_pin, INPUT);
+    brick->pullUp(input_pin, HIGH);
 }
 
-bool Button::isPressed()
+bool Button::is_pressed()
 {
-    return (_digitalRead(_inputPin) == LOW);
+    if (brick->digitalRead(input_pin) == HIGH)
+    {
+        return false;
+    } else {
+        return true;
+    }
 }
 
-bool Button::isReleased()
+bool Button::is_released()
 {
-    return (_digitalRead(_inputPin) == HIGH);
+    if (brick->digitalRead(input_pin) == LOW)
+    {
+        return false;
+    } else {
+        return true;
+    }
 }
 
