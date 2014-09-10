@@ -19,7 +19,6 @@
     Wayne and Layne, LLC and our products are not connected to or endorsed by the LEGO Group.
     LEGO, Mindstorms, and NXT are trademarks of the LEGO Group.
 
-    TODO isAtPosition(epsilon) check?
 */
 
 
@@ -36,16 +35,23 @@
 #include "utility/PID_v1.h"
 
 // These are the default motor PID values for P, I, and D.
-#define MOTOR_PID_KP                2.5
-#define MOTOR_PID_KI                0.1
-#define MOTOR_PID_KD                0.1
+#define MOTOR_PID_KP                        2.5
+#define MOTOR_PID_KI                        1.0
+#define MOTOR_PID_KD                        0.1
 // We can have different PID modes, for now, speed and position
-#define MOTOR_PID_MODE_DISABLED     0
-#define MOTOR_PID_MODE_POSITION     1
-#define MOTOR_PID_MODE_SPEED        2
+#define MOTOR_PID_MODE_DISABLED             0
+#define MOTOR_PID_MODE_POSITION             1
+#define MOTOR_PID_MODE_SPEED                2
 // Sample time - Call update() as often as you can, but it will only update
 // as often as this value. Can be updated by the user at runtime if desired.
-#define MOTOR_PID_SAMPLE_TIME_MS    50
+#define MOTOR_PID_SAMPLE_TIME_MS            50
+
+#define MOTOR_ANGLE_MULTIPLIER_DEFAULT      1
+// Epsilon is used to evaluate if we are at a desired position (abs(getPosition() - desiredPosition) < epsilon)
+#define MOTOR_EPSILON_DEFAULT               2
+// This constant is used to determine if the PID algorithm has settled down enough to stop calling update() and just call stop()
+// Used to try and avoid overshoot by stopping PID updates too early.
+#define MOTOR_PID_OUTPUT_SETTLED_THRESHOLD  2
 
 class Motor
 {
@@ -80,10 +86,13 @@ class Motor
         //     Usually you just want to reset the position to zero.
         void setPosition(int32_t pos);
         // Motors have some slop in their encoder output readings, so these two functions
-        // can be used to make a "close enough?" check. The epsilon value can bet get/set
+        // can be used to make a "close enough?" check. The epsilon value can be get/set
         // using these functions, and is used in the atPosition check like this:
         // return (abs(getPosition() - position) < _epsilon);
-        bool atPosition(int32_t position);
+        // This function also checks to ensure that the PID algorithm has settled down enough
+        // (that is, _pidOutput < MOTOR_PID_OUTPUT_SETTLED_THRESHOLD) that we can just stop()
+        // without having to worry about coasting through the setpoint.
+        bool settledAtPosition(int32_t position);
         void setEpsilon(int8_t epsilon);
         int8_t getEpsilon(void);
 
@@ -136,7 +145,7 @@ class Motor
         // Similarly, "go to angle -60" will be "go to angle 300".
         // If you want "go 45 degrees clockwise from here", try using
         // m.goToAngle(m.getAngle() + 45);
-        int32_t goToAngle(int32_t angle); // returns the destination position
+        void goToAngle(int32_t angle);
         // Go to the specified angle using PID, but wait until the motor arrives
         void goToAngleWait(int32_t angle);
         // Same as above, but return after timeoutMS milliseconds in case it gets stuck
@@ -178,6 +187,10 @@ class Motor
 
         // Check out the comments above for setAngleOutputMultiplier()
         int8_t _angleMultiplier;
+
+        // Uses the current angle to determine the desired destination
+        // position of the motor. Used in the goToAngle* functions.
+        int32_t _getDestPositionFromAngle(int32_t angle);
 
         // When checking if the motor has reached a certain position,
         // there is likely to be a small amount of "slop", and it would be

@@ -33,7 +33,8 @@ Motor::Motor(uint8_t enPin, uint8_t dirPin, uint8_t pwmPin, uint8_t tachPinA, ui
              _pid(&_pidInput, &_pidOutput, &_pidSetpoint, MOTOR_PID_KP, MOTOR_PID_KI, MOTOR_PID_KD, REVERSE),
              _pidMode(MOTOR_PID_MODE_DISABLED),
              _encoder(tachPinA, tachPinB),
-             _angleMultiplier(2),
+             _angleMultiplier(MOTOR_ANGLE_MULTIPLIER_DEFAULT),
+             _epsilon(MOTOR_EPSILON_DEFAULT),
              _pinMode(&::pinMode),
              _digitalWrite(&::digitalWrite),
              _digitalRead(&::digitalRead)
@@ -53,7 +54,8 @@ Motor::Motor(const MotorSettings &settings):
              _pid(&_pidInput, &_pidOutput, &_pidSetpoint, MOTOR_PID_KP, MOTOR_PID_KI, MOTOR_PID_KD, REVERSE),
              _pidMode(MOTOR_PID_MODE_DISABLED),
              _encoder(settings.tachPinA, settings.tachPinB),
-             _angleMultiplier(2),
+             _angleMultiplier(MOTOR_ANGLE_MULTIPLIER_DEFAULT),
+             _epsilon(MOTOR_EPSILON_DEFAULT),
              _pinMode(settings.pinMode),
              _digitalWrite(settings.digitalWrite),
              _digitalRead(settings.digitalRead)
@@ -65,12 +67,12 @@ Motor::Motor(const MotorSettings &settings):
 
 int32_t Motor::getPosition(void)
 {
-   return _encoder.read();
+    return _encoder.read();
 }
 
 void Motor::setPosition(int32_t pos)
 {
-   _encoder.write(pos);
+    _encoder.write(pos);
 }
 
 
@@ -100,32 +102,32 @@ void Motor::disable(void)
 
 void Motor::stop(void)
 {
-  _digitalWrite(_enPin, LOW);
-  _digitalWrite(_dirPin, LOW);
-  _digitalWrite(_pwmPin, LOW);
+    _digitalWrite(_enPin, LOW);
+    _digitalWrite(_dirPin, LOW);
+    _digitalWrite(_pwmPin, LOW);
 }
 
 
 // RAW UNCONTROLLED SPEED FUNCTION
 void Motor::rawSetSpeed(int16_t s)
 {
-  _rawSpeed = s;
-  if (s == 0)
-  {
-    stop();
-  }
-  else if (s < 0)
-  {
-    _digitalWrite(_dirPin, HIGH);
-    analogWrite(_pwmPin, 255 + s);
-    _digitalWrite(_enPin, HIGH);
-  }
-  else
-  {
-    _digitalWrite(_dirPin, LOW);
-    analogWrite(_pwmPin, s);
-    _digitalWrite(_enPin, HIGH);
-  }
+    _rawSpeed = s;
+    if (s == 0)
+    {
+        stop();
+    }
+    else if (s < 0)
+    {
+        _digitalWrite(_dirPin, HIGH);
+        analogWrite(_pwmPin, 255 + s);
+        _digitalWrite(_enPin, HIGH);
+    }
+    else
+    {
+        _digitalWrite(_dirPin, LOW);
+        analogWrite(_pwmPin, s);
+        _digitalWrite(_enPin, HIGH);
+    }
 }
 
 int16_t Motor::rawGetSpeed(void)
@@ -136,28 +138,30 @@ int16_t Motor::rawGetSpeed(void)
 
 void Motor::goToPosition(int32_t position)
 {
-  // Swith our internal PID into position mode
-  _pidMode = MOTOR_PID_MODE_POSITION;
-  _pidSetpoint = position;
+    // Swith our internal PID into position mode
+    _pidMode = MOTOR_PID_MODE_POSITION;
+    _pidSetpoint = position;
 }
 
 void Motor::goToPositionWait(int32_t position)
 {
     goToPosition(position);
-    while (!atPosition(position))
+    while (!settledAtPosition(position))
     {
         update();
     }
+    stop();
 }
 
 bool Motor::goToPositionWaitTimeout(int32_t position, uint32_t timeoutMS)
 {
     goToPosition(position);
     timeoutMS += millis(); // future time when we timeout
-    while ( !atPosition(position) && (millis() < timeoutMS) )
+    while ( !settledAtPosition(position) && (millis() < timeoutMS) )
     {
         update();
     }
+    stop();
     if (millis() >= timeoutMS)
     {
         return false;
@@ -165,56 +169,64 @@ bool Motor::goToPositionWaitTimeout(int32_t position, uint32_t timeoutMS)
     return true;
 }
 
-bool Motor::atPosition(int32_t position)
+bool Motor::settledAtPosition(int32_t position)
 {
-    return (abs(getPosition() - position) < _epsilon);
+    return (    (abs(getPosition() - position) < _epsilon)
+             && (abs(_pidOutput) < MOTOR_PID_OUTPUT_SETTLED_THRESHOLD) );
 }
 
 void Motor::setAngleOutputMultiplier(int8_t multiplier)
 {
-  // Since the LEGO NXT motor encoders have 720 ticks per revolution,
-  // we have to double the user's specified multiplier.
-  _angleMultiplier = multiplier << 1;
+    // Since the LEGO NXT motor encoders have 720 ticks per 360 degrees,
+    // we have to double the user's specified multiplier.
+    _angleMultiplier = multiplier << 1;
 }
 
-int32_t Motor::goToAngle(int32_t angle)
+int32_t Motor::_getDestPositionFromAngle(int32_t angle)
 {
-  int16_t delta = (angle % 360) - getAngle();
+    int16_t delta = (angle % 360) - getAngle();
+    Serial.print("getAngle: ");
+    Serial.println(getAngle());
+    Serial.print("angle: ");
+    Serial.println(angle);
+    Serial.print("delta pre: ");
+    Serial.println(delta);
 
-  while (delta > 180)
-    delta -= 360;
-  while (delta < -180)
-    delta += 360;
+    while (delta > 180)
+    {
+        delta -= 360;
+    }
+    while (delta < -180)
+    {
+        delta += 360;
+    }
+    Serial.print("delta post: ");
+    Serial.println(delta);
 
-  // Now, delta is between -180 and +180
+    // Now, delta is between -180 and +180
+    Serial.print("getPosition: ");
+    Serial.println(getPosition());
+    Serial.print("delta * _angleMultiplier: ");
+    Serial.println(delta * _angleMultiplier);
+    int32_t position = getPosition() + (delta * _angleMultiplier);
+    Serial.print("position: ");
+    Serial.println(position);
+    return position;
+}
 
-  int32_t position = getPosition() + (delta * _angleMultiplier);
-  goToPosition(position);
-  return position;
+void Motor::goToAngle(int32_t angle)
+{
+    goToPosition(_getDestPositionFromAngle(angle));
 }
 
 void Motor::goToAngleWait(int32_t angle)
 {
-    int32_t position = goToAngle(angle);
-    while (!atPosition(position))
-    {
-        update();
-    }
+    goToPositionWait(_getDestPositionFromAngle(angle));
 }
 
 bool Motor::goToAngleWaitTimeout(int32_t angle, uint32_t timeoutMS)
 {
-    int32_t position = goToAngle(angle);
-    timeoutMS += millis(); // future time when we timeout
-    while ( !atPosition(position) && (millis() < timeoutMS) )
-    {
-        update();
-    }
-    if (millis() >= timeoutMS)
-    {
-        return false;
-    }
-    return true;
+    return goToPositionWaitTimeout(_getDestPositionFromAngle(angle), timeoutMS);
 }
 
 uint16_t Motor::getAngle(void)
@@ -224,54 +236,58 @@ uint16_t Motor::getAngle(void)
 
 void Motor::setAngle(int32_t angle)
 {
-  setPosition((angle % 360) * _angleMultiplier);
+    setPosition((angle % 360) * _angleMultiplier);
 }
 
 
 
 void Motor::update(void)
 {
-  switch (_pidMode)
-  {
-    case MOTOR_PID_MODE_POSITION:
-      _pidInput = _encoder.read();
-      _pid.Compute();
-      rawSetSpeed(_pidOutput);
-      break;
+    switch (_pidMode)
+    {
+        case MOTOR_PID_MODE_POSITION:
+            _pidInput = _encoder.read();
+            _pid.Compute();
+            rawSetSpeed(_pidOutput);
+            //Serial.print("pos: ");
+            //Serial.println(_pidInput);
+            //Serial.print("out: ");
+            //Serial.println(_pidOutput);
+            break;
 
-    case MOTOR_PID_MODE_SPEED:
-      // TODO how can we determine the current speed if this is being called frequently
-      break;
+        case MOTOR_PID_MODE_SPEED:
+            // TODO how can we determine the current speed if this is being called frequently
+            break;
 
-    default: // includes MOTOR_PID_MODE_DISABLED
-      break;
-  }
+        default: // includes MOTOR_PID_MODE_DISABLED
+            break;
+    }
 }
 
 void Motor::delayUpdateMS(int delayMS)
 {
-  unsigned long endTime = millis() + delayMS;
-  while (millis() < endTime)
-  {
-    update();
-    // We could put a delay(5) here, but the PID library already has a 
-    // "sample time" parameter to only run so frequent, you know?
-  }
+    unsigned long endTime = millis() + delayMS;
+    while (millis() < endTime)
+    {
+        update();
+        // We could put a delay(5) here, but the PID library already has a 
+        // "sample time" parameter to only run so frequent, you know?
+    }
 }
 
 void Motor::pidSetUpdateFrequencyMS(int timeMS)
 {
-  _pid.SetSampleTime(timeMS);
+    _pid.SetSampleTime(timeMS);
 }
 
 void Motor::pidPrintValues(void)
 {
-  Serial.print("SET:");
-  Serial.println(_pidSetpoint);
-  Serial.print("INP:");
-  Serial.println(_pidInput);
-  Serial.print("OUT:");
-  Serial.println(_pidOutput);
+    Serial.print("SET:");
+    Serial.println(_pidSetpoint);
+    Serial.print("INP:");
+    Serial.println(_pidInput);
+    Serial.print("OUT:");
+    Serial.println(_pidOutput);
 }
 
 double Motor::pidGetKp(void)
