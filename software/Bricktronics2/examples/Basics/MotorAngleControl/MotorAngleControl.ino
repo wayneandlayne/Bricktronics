@@ -130,7 +130,7 @@ void loop()
   // This function is the same as the previous function, but it will return
   // once the desired angle is reached OR if the timeout expires. It returns
   // true if the angle was reached, and returns false if the timeout expired.
-  m.gotoAngleWaitTimeout(90, 1000);
+  m.goToAngleWaitTimeout(90, 1000);
 
 
   // Now, let's pretend we have other things to do, and can't simply use
