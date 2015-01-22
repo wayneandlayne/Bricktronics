@@ -1,5 +1,5 @@
 #include <Wire.h>
-#include <BricktronicsMegashield.h> // These three lines let the Arduino sketch use the Bricktronics library code that simplifies working with motors and sensors.
+#include <BricktronicsMegashield.h> // These two lines let the Arduino sketch use the Bricktronics library code that simplifies working with motors and sensors.
 
 // Make: LEGO and Arduino Projects
 // Chapter 5: Chocolate Milk Maker
