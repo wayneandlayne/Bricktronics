@@ -1,5 +1,5 @@
-Bricktronics Library v1.0
-December 3rd, 2012
+Bricktronics Library v1.0.3
+January 22, 2015
 http://www.wayneandlayne.com/bricktronics
 
 Connect your LEGO Mindstorms NXT sensors and motors to your Arduino using this library.  Examples are included--ones that don't need much building are in the Basics/ directory.  Most of the other examples are code from the book "Make: LEGO and Arduino Projects" by John Baichtal, Matthew Beckler, and Adam Wolf.
