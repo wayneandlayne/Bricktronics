@@ -128,20 +128,20 @@ void dispense_syrup() // When dispense_syrup() starts, the system doesn’t know
     for (int i = 0; i < 40; i++) // At this point, the syrup container is pointed into the cup. To help the syrup drip out, we push the syrup container and then release it, 40 times. The length of each push is calculated so we are dripping for a total of SYRUP_WAIT milliseconds.
     {
         syrup_arm.go_to_pos(-100);
-        BricktronicsMegashield::delay_update(SYRUP_WAIT/80, &syrup_arm); // This is a shortcut for a common idiom with the PIDMotor object. For example, BricktronicsMegashield::delay_update(1000, &motor); runs motor.update() for 1000 milliseconds before returning.
+        BricktronicsMegashield::delay_update(SYRUP_WAIT/80, &syrup_arm, NULL); // This is a shortcut for a common idiom with the PIDMotor object. For example, BricktronicsMegashield::delay_update(1000, &motor); runs motor.update() for 1000 milliseconds before returning.
         syrup_arm.go_to_pos(0);
-        BricktronicsMegashield::delay_update(SYRUP_WAIT/80, &syrup_arm);
+        BricktronicsMegashield::delay_update(SYRUP_WAIT/80, &syrup_arm, NULL);
     }
 
     Serial.println("Retreating syrup arm!"); // This multistep movement of the arm is supposed to start slowly, then finish, to help prevent the syrup from flying out the end when the arm is pulled back.
     syrup_arm.go_to_pos(20);
-    BricktronicsMegashield::delay_update(100, &syrup_arm);
+    BricktronicsMegashield::delay_update(100, &syrup_arm, NULL);
     syrup_arm.go_to_pos(50);
-    BricktronicsMegashield::delay_update(100, &syrup_arm);
+    BricktronicsMegashield::delay_update(100, &syrup_arm, NULL);
     syrup_arm.go_to_pos(225);
-    BricktronicsMegashield::delay_update(1000, &syrup_arm);
+    BricktronicsMegashield::delay_update(1000, &syrup_arm, NULL);
     syrup_arm.go_to_pos(350);
-    BricktronicsMegashield::delay_update(1000, &syrup_arm);
+    BricktronicsMegashield::delay_update(1000, &syrup_arm, NULL);
     syrup_arm.stop();
 }
 
@@ -180,18 +180,18 @@ void raise_stir_arm() // raise_stir_arm() tries to prevent a mess. It does this 
     Serial.println("Retreating stir arm!");
 
     stir_arm.go_to_pos(-35);
-    BricktronicsMegashield::delay_update(1000, &stir_arm);
+    BricktronicsMegashield::delay_update(1000, &stir_arm, NULL);
     stir_arm.go_to_pos(-60);
-    BricktronicsMegashield::delay_update(2000, &stir_arm);
+    BricktronicsMegashield::delay_update(2000, &stir_arm, NULL);
     stir_arm.go_to_pos(-100);
     start_stir(85);
-    BricktronicsMegashield::delay_update(2000, &stir_arm);
+    BricktronicsMegashield::delay_update(2000, &stir_arm, NULL);
     stop_stir();
 
     stir_arm.go_to_pos(-110);
-    BricktronicsMegashield::delay_update(2000, &stir_arm);
+    BricktronicsMegashield::delay_update(2000, &stir_arm, NULL);
     stir_arm.go_to_pos(-250);
-    BricktronicsMegashield::delay_update(1000, &stir_arm);
+    BricktronicsMegashield::delay_update(1000, &stir_arm, NULL);
     stir_arm.stop();
 }
 
