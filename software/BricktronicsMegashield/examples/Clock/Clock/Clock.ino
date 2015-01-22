@@ -1,6 +1,7 @@
 #include <Wire.h>
 #include <BricktronicsMegashield.h>
 #include <Time.h>
+// Requires the Time library from http://playground.arduino.cc/Code/Time
 
 // Make: LEGO and Arduino Projects
 // Chapter 4: Clock
