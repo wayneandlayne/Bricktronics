@@ -5,8 +5,8 @@ This repo was formerly the combined home of all files for the Bricktronics proje
 
 The hardware and model repositories are now located here:
 
-* [Hardware - Design files for the circuit boards we made](https://github.com/wayneandlayne/BricktronicsHardware)
-* [Models - The files for various LEGO models](https://github.com/wayneandlayne/BricktronicsModels)
+* [BricktronicsHardware](https://github.com/wayneandlayne/BricktronicsHardware) - Design files for the circuit boards we made
+* [BricktronicsModels](https://github.com/wayneandlayne/BricktronicsModels) - The files for various LEGO models
 
 This is a possibly-incomplete list of the new individual Bricktronics software libraries.
 
